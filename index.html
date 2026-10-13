@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NEWSONG QT</title>
+<meta name="theme-color" content="#111111">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="NEWSONG QT">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<!-- 서브셋에 없는 드문 글자만 같은 프리텐다드 웹폰트로 채워요 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
+<script src="config.js"></script>
+<style>
+  @font-face{font-family:'PretendardQT';font-weight:400;font-display:swap;src:url(fonts/PretendardQT-400.woff2) format('woff2')}
+  @font-face{font-family:'PretendardQT';font-weight:600;font-display:swap;src:url(fonts/PretendardQT-600.woff2) format('woff2')}
+  @font-face{font-family:'PretendardQT';font-weight:800;font-display:swap;src:url(fonts/PretendardQT-800.woff2) format('woff2')}
+  @font-face{font-family:'PretendardQT';font-weight:900;font-display:swap;src:url(fonts/PretendardQT-900.woff2) format('woff2')}
+
+  :root{ --ink:#111; --ink-2:#444; --ink-3:#8a8a8a; --line:#e4e4e4; --bg:#f4f4f2; --card:#fff; --fs:16px; }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"PretendardQT","Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    -webkit-font-smoothing:antialiased;word-break:keep-all}
+  button,input{font:inherit;color:inherit}
+  button{cursor:pointer;border:0;background:none}
+  [hidden]{display:none!important}
+
+  /* 상단 바 */
+  .bar{position:sticky;top:0;z-index:10;background:var(--ink);color:#fff;padding:env(safe-area-inset-top) 16px 0}
+  .bar-in{max-width:1120px;margin:0 auto;height:56px;display:flex;align-items:center;gap:12px}
+  .brand{flex:1;display:flex;align-items:center;gap:10px;white-space:nowrap;min-width:0}
+  .brand img{height:30px;width:auto;display:block}
+  .brand span{font-weight:900;font-size:19px;letter-spacing:-.01em}
+  .nav{display:flex;align-items:center;gap:4px}
+  .nav button{width:36px;height:36px;border-radius:8px;display:grid;place-items:center}
+  .nav button:disabled{opacity:.25;cursor:default}
+  .nav .d{font-weight:700;font-size:15px;min-width:150px;text-align:center;font-variant-numeric:tabular-nums}
+  .side{flex:1;display:flex;justify-content:flex-end;align-items:center;gap:8px}
+  .today{border:1px solid #555;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600}
+  .me{width:34px;height:34px;border-radius:50%;border:1px solid #555;display:grid;place-items:center;font-weight:800;font-size:13px}
+  @media (hover:hover){ .nav button:hover:not(:disabled){background:#2a2a2a} .today:hover,.me:hover{background:#fff;color:var(--ink)} }
+
+  /* 도구줄 */
+  .tools{max-width:1120px;margin:14px auto 0;padding:0 16px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .seg{display:none;background:#e7e7e4;border-radius:10px;padding:3px}
+  .seg button{white-space:nowrap;padding:7px 16px;border-radius:8px;font-size:14px;font-weight:600;color:var(--ink-3)}
+  .seg button.on{background:var(--ink);color:#fff}
+  .tools > .collect{margin-left:auto}
+  .zoom{display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:999px;height:32px}
+  .zoom button{width:32px;height:30px;font-weight:700}
+  .zoom span{font-size:12.5px;font-weight:600;min-width:40px;text-align:center;font-variant-numeric:tabular-nums}
+
+  /* 본문 */
+  main{max-width:1120px;margin:0 auto;padding:16px 16px 120px;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;align-items:start}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px}
+  .head{padding:6px 2px 18px}
+  .eyebrow{font-size:13px;color:var(--ink-3);font-weight:600}
+  h1{font-size:calc(var(--fs) * 1.6);line-height:1.3;margin:6px 0 0;letter-spacing:-.03em;font-weight:800}
+  .range{display:inline-block;margin-left:8px;font-size:calc(var(--fs) * .9);font-weight:600;color:var(--ink-2);vertical-align:middle}
+  .tong{margin-top:14px;display:inline-flex;align-items:center;gap:10px;border:1.5px solid var(--ink);border-radius:999px;padding:7px 14px 7px 10px;font-size:14px;font-weight:600}
+  .tong.done{background:var(--ink);color:#fff}
+  .box{width:18px;height:18px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center}
+  .tong.done .box{background:#fff;color:var(--ink);border-color:#fff}
+  .tong .box svg{opacity:0}.tong.done .box svg{opacity:1}
+  .pray{padding:16px 18px;display:flex;gap:14px;align-items:flex-start;margin-bottom:14px}
+  .pill{flex:none;background:var(--ink);color:#fff;font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px;margin-top:1px}
+  .pray p{margin:0;font-size:calc(var(--fs) * .92);line-height:1.65;color:var(--ink-2)}
+  .bible{padding:22px 22px 18px}
+  .bible .hd{font-size:calc(var(--fs) * .88);color:var(--ink-3);margin:0 0 14px}
+  .v{margin:0 0 .75em;font-size:var(--fs);line-height:1.8}
+  .v b{font-weight:800;margin-right:6px;font-size:.82em;font-variant-numeric:tabular-nums}
+  details{border-top:1.5px solid var(--ink);margin-top:22px}
+  summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:12px 2px;font-weight:800;font-size:15px}
+  summary::-webkit-details-marker{display:none}
+  summary i{font-style:normal;font-weight:500;color:var(--ink-3);font-size:13px}
+  details[open] summary i::after{content:'접기'} details:not([open]) summary i::after{content:'펼치기'}
+  .exp{padding:0 2px 6px;font-size:calc(var(--fs) * .95);line-height:1.85;color:var(--ink-2);white-space:pre-line;margin:0}
+  /* 하이라이트 */
+  .v{cursor:pointer;border-radius:6px;margin-left:-6px;margin-right:-6px;padding:2px 6px;transition:background .12s}
+  .v span{transition:background .12s}
+  .v.hl span{background:linear-gradient(transparent 40%, #ffe873 40%, #ffe873 92%, transparent 92%);-webkit-box-decoration-break:clone;box-decoration-break:clone}
+  .v.ul span{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:5px}
+  .v.sel{background:#ececea;outline:1.5px solid var(--ink)}
+  .bible .tip{font-size:12px;color:var(--ink-3);margin:-4px 0 12px}
+  .mtool{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:20;background:var(--ink);color:#fff;
+    border-radius:16px;padding:6px;display:flex;gap:2px;box-shadow:0 8px 30px rgba(0,0,0,.25);max-width:calc(100vw - 24px)}
+  .mtool button{white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;border-radius:11px;font-size:12px;font-weight:600;min-width:58px}
+  .mtool button:active{background:#2a2a2a}
+  .mtool .sw{width:22px;height:16px;border-radius:4px;display:grid;place-items:center;font-size:13px;font-weight:800}
+  .mtool .sw.hl{background:#ffe873;color:#111} .mtool .sw.ul{text-decoration:underline;text-underline-offset:3px}
+  .mtool .cnt{align-self:center;font-size:12px;opacity:.6;padding:0 8px 0 6px;white-space:nowrap}
+  .collect{height:32px;border-radius:999px;padding:0 13px;background:#fff;border:1px solid var(--line);font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .collect i{width:12px;height:9px;border-radius:2px;background:#ffe873;display:block}
+  /* 모아보기 */
+  .full{position:fixed;inset:0;z-index:35;background:var(--bg);overflow:auto;-webkit-overflow-scrolling:touch}
+  .full .bar-in{justify-content:space-between}
+  .full .x{width:36px;height:36px;font-size:22px;color:#fff}
+  .hlist{max-width:720px;margin:0 auto;padding:18px 16px 60px}
+  .hgroup{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px;cursor:pointer}
+  .hgroup .hd2{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:8px}
+  .hgroup .hd2 b{font-size:15px}
+  .hgroup .hd2 small{font-size:12px;color:var(--ink-3);white-space:nowrap}
+  .hgroup .v{cursor:inherit;margin:0 0 .4em;padding:0;font-size:calc(var(--fs) * .95)}
+  .write{position:sticky;top:76px}
+  .f{margin-bottom:18px}
+  .f label{display:block;font-weight:800;font-size:15px;margin:0 0 8px}
+  .f label small{display:block;font-weight:500;color:var(--ink-3);font-size:12.5px;margin-top:3px;line-height:1.5}
+  textarea{width:100%;min-height:150px;resize:none;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:#fff;
+    padding:14px 16px;font:inherit;font-size:max(16px,var(--fs));line-height:1.75;color:var(--ink);outline:none;transition:border-color .15s}
+  textarea:focus{border-color:var(--ink)}
+  textarea.big{min-height:220px}
+  .acts{display:flex;gap:10px;align-items:center}
+  .btn{height:50px;border-radius:12px;font-weight:700;font-size:15px;padding:0 20px}
+  .btn.pri{background:var(--ink);color:#fff;flex:1}
+  .btn.sec{border:1.5px solid var(--ink);background:#fff}
+  .btn:disabled{opacity:.45}
+  .status{font-size:12.5px;color:var(--ink-3);margin-top:10px;min-height:18px}
+  .to-write{display:none;width:100%;margin-top:28px}
+  .empty{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--ink-2)}
+  .empty h2{font-size:20px;margin:0 0 8px;color:var(--ink)}
+  .empty .btn{margin-top:18px}
+
+  /* 시작·신청 화면 */
+  .gate{min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:calc(24px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom))}
+  .gate-in{width:100%;max-width:380px;text-align:center}
+  .gate .logo{width:132px;margin:0 auto 14px;display:block}
+  .gate h2{font-size:26px;font-weight:900;margin:0;letter-spacing:-.01em}
+  .gate .sub{color:var(--ink-3);font-size:14px;margin:6px 0 34px;line-height:1.6}
+  .gate .panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;text-align:left}
+  .gate .panel h3{font-size:17px;margin:0 0 6px}
+  .gate .panel p{font-size:13.5px;color:var(--ink-2);line-height:1.65;margin:0 0 16px}
+  .gate input{width:100%;height:50px;border:1px solid var(--line);border-radius:12px;padding:0 14px;font-size:16px;outline:none;margin-bottom:10px;background:#fafafa}
+  .gate input:focus{border-color:var(--ink);background:#fff}
+  .gate input.code{text-transform:uppercase;letter-spacing:.12em;font-weight:700;text-align:center}
+  .gate .btn{width:100%}
+  .gate .stack{display:grid;gap:10px}
+  .gate .link{display:block;margin:16px auto 0;font-size:13.5px;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px}
+  .gate .err{color:#b42318;font-size:13px;min-height:18px;margin:-2px 0 8px}
+  .codebox{font-weight:800;letter-spacing:.14em;font-size:20px;text-align:center;padding:14px;border:1.5px dashed var(--ink);border-radius:12px;margin:4px 0 12px;font-variant-numeric:tabular-nums}
+
+  /* 메뉴 시트 */
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;display:flex;align-items:flex-end;justify-content:center}
+  .sheet{background:#fff;width:100%;max-width:440px;border-radius:18px 18px 0 0;padding:22px 20px calc(20px + env(safe-area-inset-bottom))}
+  @media (min-width:600px){ .scrim{align-items:center} .sheet{border-radius:18px} }
+  .sheet h3{margin:0 0 4px;font-size:18px}
+  .sheet .muted{color:var(--ink-3);font-size:13px;line-height:1.6;margin:0 0 14px}
+  .sheet .row{display:grid;gap:10px;margin-top:14px}
+
+  /* 홈 화면 추가 안내 */
+  .hint{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:25;background:var(--ink);color:#fff;border-radius:14px;
+    padding:14px 44px 14px 16px;font-size:13.5px;line-height:1.55;max-width:460px;margin:0 auto}
+  .hint b{font-weight:800}
+  .hint button{position:absolute;right:8px;top:8px;width:30px;height:30px;color:#fff;font-size:18px}
+
+  .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;background:var(--ink);color:#fff;
+    padding:11px 18px;border-radius:999px;font-size:14px;font-weight:600;transition:.2s;pointer-events:none;z-index:40;white-space:nowrap}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .spin{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--ink);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  @media (max-width:880px){
+    main{grid-template-columns:1fr;gap:0}
+    .seg{display:flex}
+    .write{position:static}
+    body[data-tab="read"] .col-write{display:none}
+    body[data-tab="write"] .col-read{display:none}
+    .to-write{display:block}
+    .brand{flex:none}
+    .brand img{height:24px}
+    .brand span{display:none}
+    .nav .d{min-width:124px;font-size:14px}
+    .today{padding:5px 10px}
+    .seg button{padding:7px 11px}
+    .tools{gap:8px}
+    .zoom button{width:28px}
+    .zoom span{min-width:36px}
+    .mtool button{min-width:0;padding:8px 9px}
+    .mtool .cnt{padding:0 4px}
+    .hint{bottom:calc(82px + env(safe-area-inset-bottom))}
+    .acts{position:fixed;left:0;right:0;bottom:0;background:var(--bg);padding:10px 16px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);z-index:5}
+  }
+</style>
+</head>
+<body data-tab="read">
+
+<!-- 시작·신청·대기 화면 -->
+<section class="gate" id="gate" hidden><div class="gate-in" id="gateIn"></div></section>
+
+<!-- 본 앱 -->
+<div id="app" hidden>
+  <div class="bar"><div class="bar-in">
+    <div class="brand"><img src="icons/logo-white.svg" alt="NEWSONG"><span>NEWSONG QT</span></div>
+    <div class="nav">
+      <button id="prev" aria-label="이전 날짜"><svg width="10" height="12" viewBox="0 0 10 12"><path d="M9 1 2 6l7 5z" fill="currentColor"/></svg></button>
+      <span class="d" id="dateLabel">불러오는 중</span>
+      <button id="next" aria-label="다음 날짜"><svg width="10" height="12" viewBox="0 0 10 12"><path d="m1 1 7 5-7 5z" fill="currentColor"/></svg></button>
+    </div>
+    <div class="side">
+      <button class="today" id="goToday">오늘</button>
+      <button class="me" id="meBtn" aria-label="내 정보">나</button>
+    </div>
+  </div></div>
+  <div class="tools">
+    <div class="seg" role="tablist">
+      <button class="on" data-t="read">말씀</button>
+      <button data-t="write">묵상 쓰기</button>
+    </div>
+    <button class="collect" id="collectBtn"><i></i>모아보기</button>
+    <div class="zoom" style="margin-left:0"><button id="zo" aria-label="글자 작게">−</button><span id="zv">100%</span><button id="zi" aria-label="글자 크게">+</button></div>
+  </div>
+  <main id="main"></main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═════════ 서버 연결 ═════════
+ * 화면은 api() 하나로만 서버와 이야기해요.
+ * 나중에 저장소를 Supabase 등으로 옮기면 이 부분만 바꾸면 돼요.
+ */
+const CFG = window.NQT_CONFIG || {};
+const DEMO = /[?&]demo\b/.test(location.search) || !/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(CFG.API_URL || '');
+let KEY = null, ME = null;
+
+async function api(action, payload, opts){
+  if (DEMO) return demoApi(action, payload || {});
+  const res = await fetch(CFG.API_URL, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},   // 단순 요청(사전 확인 없이 바로 전송)
+    body: JSON.stringify(Object.assign({action, key: KEY}, payload || {})),
+    keepalive: !!(opts && opts.keepalive),
+  });
+  const j = await res.json();
+  if (!j.ok){ const e = new Error(j.message || j.error); e.code = j.error; throw e; }
+  return j;
+}
+
+/* ═════════ 저장소(이 기기) ═════════ */
+const store = {
+  get(k){ try { return JSON.parse(localStorage.getItem(k)); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} },
+  del(k){ try { localStorage.removeItem(k); } catch(e){} },
+};
+const normKey = k => String(k || '').toUpperCase().replace(/[^A-Z0-9]/g,'');
+const fmtKey = k => { k = normKey(k); return k.length === 10 ? k.slice(0,5) + '-' + k.slice(5) : k; };
+
+/* ═════════ 공통 ═════════ */
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const isStandalone = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let tt; function toast(m){ const el = $('#toast'); el.textContent = m; el.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => el.classList.remove('show'), 1900); }
+function copy(text, msg){
+  const done = () => toast(msg || '복사했어요');
+  const fallback = () => { const ta = document.createElement('textarea'); ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch(e){} ta.remove(); done(); };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
+}
+
+/* ═════════ 시작 화면들 ═════════ */
+function showGate(html){
+  $('#app').hidden = true; $('#gate').hidden = false;
+  $('#gateIn').innerHTML = `<img class="logo" src="icons/logo-black.svg" alt="NEWSONG"><h2>NEWSONG QT</h2>` + html;
+}
+
+function showWelcome(msg){
+  showGate(`<p class="sub">오늘의 시심나를 읽고, 묵상을 적어요.</p>
+    <div class="panel" id="p1">
+      <h3>처음 오셨나요?</h3>
+      <p>이름을 남겨주시면 관리자가 확인 후 열어드려요.</p>
+      <input id="nm" maxlength="20" placeholder="이름 (예: 홍길동)" autocomplete="name">
+      <div class="err" id="err1">${esc(msg || '')}</div>
+      <button class="btn pri" id="reqBtn">사용 신청하기</button>
+    </div>
+    <button class="link" id="haveCode">초대 코드가 있어요</button>`);
+  $('#reqBtn').onclick = async () => {
+    const name = $('#nm').value.trim();
+    if (!name) { $('#err1').textContent = '이름을 입력해 주세요.'; return; }
+    $('#reqBtn').disabled = true; $('#reqBtn').textContent = '신청하는 중…';
+    try { const r = await api('request', {name}); setKey(r.key); ME = r.user; showPending(); }
+    catch(e){ $('#err1').textContent = e.message || '신청에 실패했어요.'; $('#reqBtn').disabled = false; $('#reqBtn').textContent = '사용 신청하기'; }
+  };
+  $('#haveCode').onclick = () => showCodeInput();
+}
+
+function showCodeInput(msg){
+  showGate(`<p class="sub">받은 코드나 다른 기기에서 쓰던 코드를 입력하세요.</p>
+    <div class="panel">
+      <h3>코드 입력</h3>
+      <p>예: ABCDE-23456 (대소문자·하이픈 상관없어요)</p>
+      <input id="cd" class="code" maxlength="11" placeholder="XXXXX-XXXXX" autocapitalize="characters" autocomplete="off" spellcheck="false">
+      <div class="err" id="err2">${esc(msg || '')}</div>
+      <button class="btn pri" id="cdBtn">시작하기</button>
+    </div>
+    <button class="link" id="back">처음 화면으로</button>`);
+  const cd = $('#cd');
+  cd.oninput = () => { const v = normKey(cd.value).slice(0,10); cd.value = v.length > 5 ? v.slice(0,5) + '-' + v.slice(5) : v; };
+  $('#cdBtn').onclick = async () => {
+    if (normKey(cd.value).length !== 10) { $('#err2').textContent = '코드 10자리를 입력해 주세요.'; return; }
+    setKey(cd.value); $('#cdBtn').disabled = true; $('#cdBtn').textContent = '확인하는 중…';
+    await checkMe(true);
+  };
+  $('#back').onclick = () => { clearKey(); showWelcome(); };
+}
+
+function showPending(){
+  showGate(`<p class="sub">${esc(ME && ME.name || '')}님, 신청이 접수됐어요.</p>
+    <div class="panel">
+      <h3>승인을 기다리고 있어요</h3>
+      <p>관리자가 확인하면 바로 쓸 수 있어요. 아래 코드는 내 열쇠예요. 다른 기기에서 쓸 때 필요하니 캡처해 두세요.</p>
+      <div class="codebox">${esc(fmtKey(KEY))}</div>
+      <div class="stack">
+        <button class="btn pri" id="recheck">승인됐는지 확인</button>
+        <button class="btn sec" id="cpy">코드 복사</button>
+      </div>
+    </div>
+    <button class="link" id="reset">다른 코드로 시작하기</button>`);
+  $('#recheck').onclick = () => checkMe(true);
+  $('#cpy').onclick = () => copy(fmtKey(KEY), '코드를 복사했어요');
+  $('#reset').onclick = () => { clearKey(); showCodeInput(); };
+}
+
+function showBlocked(){
+  showGate(`<div class="panel" style="margin-top:28px"><h3>사용이 중지된 코드예요</h3><p>관리자에게 문의해 주세요.</p>
+    <button class="btn sec" id="reset">다른 코드 입력</button></div>`);
+  $('#reset').onclick = () => { clearKey(); showCodeInput(); };
+}
+
+function showLoading(){ showGate(`<div style="margin-top:40px"><div class="spin"></div></div>`); }
+
+function setKey(k){ KEY = fmtKey(k); store.set('nqt.key', KEY); }
+function clearKey(){ KEY = null; ME = null; store.del('nqt.key'); }
+
+async function checkMe(fromGate){
+  try {
+    const r = await api('me');
+    ME = r.user;
+    if (ME.status === '승인') { startApp(); }
+    else if (ME.status === '대기') { showPending(); if (fromGate === true) toast('아직 승인 전이에요'); }
+    else showBlocked();
+  } catch(e){
+    if (e.code === 'NO_USER') { clearKey(); showCodeInput('코드를 찾을 수 없어요. 다시 확인해 주세요.'); }
+    else {
+      showGate(`<div class="panel" style="margin-top:28px"><h3>연결하지 못했어요</h3><p>${esc(e.message || '인터넷 연결을 확인해 주세요.')}</p><button class="btn pri" id="retry">다시 시도</button></div>`);
+      $('#retry').onclick = () => checkMe();
+    }
+  }
+}
+
+/* ═════════ 본 앱 ═════════ */
+let S = null, dirty = false, saveTimer = null;
+
+function startApp(){
+  $('#gate').hidden = true; $('#app').hidden = false;
+  $('#meBtn').textContent = (ME && ME.name || '나').trim().slice(-2);
+  load('');
+  maybeHint();
+}
+
+let zoom = store.get('nqt.zoom') || 100;
+function applyZoom(){ document.documentElement.style.setProperty('--fs', (16*zoom/100)+'px'); $('#zv').textContent = zoom+'%'; store.set('nqt.zoom', zoom); }
+$('#zi').onclick = () => { zoom = Math.min(150, zoom+10); applyZoom(); autosize(); };
+$('#zo').onclick = () => { zoom = Math.max(80, zoom-10); applyZoom(); autosize(); };
+applyZoom();
+
+document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.seg button').forEach(x => x.classList.toggle('on', x === b));
+  document.body.dataset.tab = b.dataset.t; window.scrollTo(0,0); autosize();
+  document.querySelectorAll('.bible .v.sel').forEach(p => p.classList.remove('sel')); selected.clear(); hideTool();
+});
+
+async function load(date){
+  await flush();
+  $('#dateLabel').textContent = '불러오는 중';
+  $('#main').innerHTML = '<div class="empty"><div class="spin"></div></div>';
+  try { S = await api('day', {date: date || ''}); render(); }
+  catch(e){ handleAuthError(e) || ($('#main').innerHTML = `<div class="empty"><h2>불러오지 못했어요</h2><p>${esc(e.message || '인터넷 연결을 확인해 주세요.')}</p><button class="btn pri" style="flex:none" onclick="load('${esc(date||'')}')">다시 시도</button></div>`); }
+}
+
+function handleAuthError(e){
+  if (e.code === 'NO_USER') { clearKey(); showWelcome('코드가 더 이상 유효하지 않아요. 다시 신청하거나 코드를 입력해 주세요.'); return true; }
+  if (e.code === 'PENDING') { showPending(); return true; }
+  if (e.code === 'BLOCKED') { showBlocked(); return true; }
+  return false;
+}
+
+function fmtDate(d){
+  const [y,m,dd] = d.split('-').map(Number);
+  return `${y}. ${m}. ${dd} (${'일월화수목금토'[new Date(y, m-1, dd).getDay()]})`;
+}
+const draftKey = () => 'nqt.draft.' + normKey(KEY) + '.' + S.date;
+
+function render(){
+  $('#dateLabel').textContent = fmtDate(S.date);
+  $('#prev').disabled = !S.prev; $('#next').disabled = !S.next;
+  $('#goToday').style.visibility = S.date === S.today ? 'hidden' : 'visible';
+  const q = S.qt;
+  if (!q){
+    $('#main').innerHTML = `<div class="empty"><h2>이 날짜의 묵상지가 없어요</h2>
+      <p>${S.date === S.today ? '아직 오늘 본문을 가져오지 못했어요.' : '앱을 설치하기 전 날짜는 저장돼 있지 않아요.'}</p>
+      ${S.date === S.today ? '<button class="btn pri" id="refetch" style="flex:none">다시 가져오기</button>' : ''}</div>`;
+    const r = $('#refetch');
+    if (r) r.onclick = async () => { r.textContent = '가져오는 중…'; r.disabled = true; try { S = await api('refetch'); render(); } catch(e){ r.textContent = '다시 가져오기'; r.disabled = false; toast('아직 가져올 수 없어요'); } };
+    return;
+  }
+  const local = store.get(draftKey());
+  const my = Object.assign({}, S.my);
+  // 서버 기록이 비어 있는데 이 기기에 저장 못 한 글이 남아 있으면 복구
+  if (local && (local.word || local.god || local.wrapup) && !my.word && !my.god && !my.wrapup) { Object.assign(my, local); dirty = true; }
+
+  const sec = (title, body) => body ? `<details open><summary>${title}<i></i></summary><p class="exp">${esc(body)}</p></details>` : '';
+  $('#main').innerHTML = `
+  <section class="col-read">
+    <div class="head">
+      <div class="eyebrow">${esc(q.dateLabel || S.date)}</div>
+      <h1>${esc(q.title)}${q.range ? `<span class="range">${esc(q.range)}</span>` : ''}</h1>
+      ${q.tongdok ? `<button class="tong ${my.tongdokDone?'done':''}" id="tong"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l3 3 5-6" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></span>통독 ${esc(q.tongdok)}</button>` : ''}
+    </div>
+    ${q.prayer ? `<div class="card pray"><span class="pill">여는 기도</span><p>${esc(q.prayer)}</p></div>` : ''}
+    <div class="card bible">
+      ${q.heading ? `<p class="hd">[${esc(q.heading)}]</p>` : ''}
+      ${(q.verses||[]).length ? '<p class="tip">절을 누르면 형광펜·밑줄을 칠 수 있어요</p>' : ''}
+      ${(q.verses||[]).map(v => `<p class="v ${esc((my.marks||{})[v.n] || '')}" data-n="${esc(v.n)}"><b>${esc(v.n)}</b><span>${esc(v.text)}</span></p>`).join('')}
+    </div>
+    ${sec('주석', q.notes)}${sec('본문요약', q.summary)}${sec('묵상을 돕는 글', q.guide)}
+    <button class="btn pri to-write" id="toWrite">묵상 쓰러 가기</button>
+  </section>
+  <section class="col-write"><div class="write">
+    <div class="f"><label for="word">와닿는 단어나 구절, 생각과 느낌</label><textarea id="word">${esc(my.word)}</textarea></div>
+    <div class="f"><label for="god">하나님에 대한 생각, 느낌, 깨달음</label><textarea id="god">${esc(my.god)}</textarea></div>
+    <div class="f"><label for="wrapup">묵상 정리<small>${esc(q.wrapup || '깨닫고 느낀 점, 기도하거나 실천하고 싶은 것')}</small></label><textarea id="wrapup" class="big">${esc(my.wrapup)}</textarea></div>
+    <div class="acts"><button class="btn pri" id="save">임시저장</button><button class="btn sec" id="copy">복사하기</button></div>
+    <div class="status" id="status">${my.updatedAt ? '마지막 저장 · ' + esc(my.updatedAt) : ''}</div>
+  </div></section>`;
+
+  S.my = my; S.my.marks = Object.assign({}, my.marks || {});
+  bindVerses();
+  ['word','god','wrapup'].forEach(id => $('#'+id).addEventListener('input', onEdit));
+  $('#save').onclick = () => save(true);
+  $('#copy').onclick = copyNote;
+  $('#toWrite').onclick = () => document.querySelector('.seg button[data-t=write]').click();
+  const t = $('#tong'); if (t) t.onclick = () => { S.my.tongdokDone = !S.my.tongdokDone; t.classList.toggle('done', S.my.tongdokDone); onEdit(); };
+  autosize();
+  if (dirty) schedule();
+}
+
+/* 저장: 입력 멈추고 2.5초 뒤 자동, 앱을 닫거나 다른 앱으로 갈 때도 저장 */
+function collect(){ return { word: $('#word')?.value || '', god: $('#god')?.value || '', wrapup: $('#wrapup')?.value || '', tongdokDone: !!(S && S.my && S.my.tongdokDone), marks: (S && S.my && S.my.marks) || {} }; }
+function onEdit(){
+  dirty = true; autosize();
+  store.set(draftKey(), Object.assign(collect(), {savedAt: Date.now()}));
+  $('#status').textContent = '작성 중…';
+  schedule();
+}
+function schedule(){ clearTimeout(saveTimer); saveTimer = setTimeout(() => save(false), 2500); }
+let saving = null;
+async function save(manual, keepalive){
+  clearTimeout(saveTimer);
+  if (!S || !S.qt || !$('#word')) return;
+  if (saving) await saving.catch(() => {});
+  const data = collect(), date = S.date, dk = draftKey();
+  saving = api('save', {date, data}, {keepalive});
+  try {
+    const r = await saving;
+    dirty = false; store.del(dk);
+    if (S && S.date === date) { Object.assign(S.my, data); const st = $('#status'); if (st) st.textContent = '저장됨 · ' + r.updatedAt; }
+    if (manual) toast('임시저장했어요');
+  } catch(e){
+    if (handleAuthError(e)) return;
+    const st = $('#status'); if (st) st.textContent = '저장 실패 — 이 기기에 임시 보관 중이에요';
+    if (manual) toast('저장에 실패했어요. 잠시 후 다시 눌러주세요');
+  } finally { saving = null; }
+}
+async function flush(){ if (dirty) await save(false); }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && dirty) save(false, true); });
+
+function copyNote(){
+  const q = S.qt, d = collect();
+  const parts = [`[${fmtDate(S.date)}] ${q.title}${q.range ? ' (' + q.range + ')' : ''}`];
+  const marked = (q.verses || []).filter(v => d.marks[v.n]);
+  if (marked.length) parts.push('■ 표시한 구절\n' + marked.map(v => v.n + ' ' + v.text).join('\n'));
+  if (d.word)   parts.push('■ 와닿는 단어나 구절, 생각과 느낌\n' + d.word);
+  if (d.god)    parts.push('■ 하나님에 대한 생각, 느낌, 깨달음\n' + d.god);
+  if (d.wrapup) parts.push('■ 묵상 정리\n' + d.wrapup);
+  copy(parts.join('\n\n'));
+}
+
+/* ═════════ 하이라이트 ═════════ */
+let selected = new Set();
+function bindVerses(){
+  selected = new Set(); hideTool();
+  document.querySelectorAll('.bible .v').forEach(p => p.onclick = () => {
+    if (window.getSelection && String(window.getSelection()).length) return; // 글자를 드래그 중이면 무시
+    const n = p.dataset.n;
+    if (selected.has(n)) { selected.delete(n); p.classList.remove('sel'); } else { selected.add(n); p.classList.add('sel'); }
+    selected.size ? showTool() : hideTool();
+  });
+}
+function showTool(){
+  let t = $('#mtool');
+  if (!t){
+    t = document.createElement('div'); t.className = 'mtool'; t.id = 'mtool';
+    t.innerHTML = `<span class="cnt" id="mcnt"></span>
+      <button data-a="hl"><span class="sw hl">가</span>형광펜</button>
+      <button data-a="ul"><span class="sw ul">가</span>밑줄</button>
+      <button data-a="clear"><span class="sw">⌫</span>지우기</button>
+      <button data-a="take"><span class="sw">＋</span>구절 담기</button>
+      <button data-a="close"><span class="sw">✕</span>닫기</button>`;
+    document.body.appendChild(t);
+    t.onclick = e => { const b = e.target.closest('button'); if (b) markAction(b.dataset.a); };
+  }
+  $('#mcnt').textContent = selected.size + '절';
+}
+function hideTool(){ const t = $('#mtool'); if (t) t.remove(); }
+function markAction(a){
+  const ns = [...selected].sort((x, y) => x - y);
+  if (a === 'take'){
+    const q = S.qt, txt = ns.map(n => { const v = q.verses.find(v => String(v.n) === n); return v ? `${n}절 ${v.text}` : ''; }).filter(Boolean).join('\n');
+    const w = $('#word'); w.value = (w.value.trim() ? w.value.replace(/\s+$/, '') + '\n' : '') + txt;
+    onEdit(); toast('와닿는 구절 칸에 담았어요');
+  } else if (a !== 'close'){
+    ns.forEach(n => { if (a === 'clear') delete S.my.marks[n]; else S.my.marks[n] = a; });
+    document.querySelectorAll('.bible .v').forEach(p => { p.classList.remove('hl', 'ul'); const m = S.my.marks[p.dataset.n]; if (m) p.classList.add(m); });
+    onEdit();
+  }
+  document.querySelectorAll('.bible .v.sel').forEach(p => p.classList.remove('sel'));
+  selected.clear(); hideTool();
+}
+
+/* 모아보기 */
+$('#collectBtn').onclick = async () => {
+  await flush();
+  const full = document.createElement('div'); full.className = 'full';
+  full.innerHTML = `<div class="bar"><div class="bar-in"><div class="brand"><span style="display:inline;font-size:17px">하이라이트 모아보기</span></div><button class="x" aria-label="닫기">×</button></div></div>
+    <div class="hlist" id="hlist"><div class="empty"><div class="spin"></div></div></div>`;
+  document.body.appendChild(full);
+  full.querySelector('.x').onclick = () => full.remove();
+  try {
+    const r = await api('highlights');
+    const list = $('#hlist');
+    if (!r.items.length) { list.innerHTML = '<div class="empty"><h2>아직 표시한 구절이 없어요</h2><p>본문에서 절을 누르고 형광펜이나 밑줄을 칠해 보세요.</p></div>'; return; }
+    list.innerHTML = r.items.map(g => `<div class="hgroup" data-d="${esc(g.date)}">
+      <div class="hd2"><b>${esc(g.title)}${g.range ? ' <small>' + esc(g.range) + '</small>' : ''}</b><small>${esc(fmtDate(g.date))}</small></div>
+      ${g.verses.map(v => `<p class="v ${esc(v.type)}"><b>${esc(v.n)}</b><span>${esc(v.text)}</span></p>`).join('')}</div>`).join('');
+    list.querySelectorAll('.hgroup').forEach(el => el.onclick = () => { full.remove(); document.querySelector('.seg button[data-t=read]').click(); load(el.dataset.d); });
+  } catch(e){
+    if (handleAuthError(e)) { full.remove(); return; }
+    $('#hlist').innerHTML = `<div class="empty"><h2>불러오지 못했어요</h2><p>${esc(e.message || '')}</p></div>`;
+  }
+};
+
+function autosize(){ document.querySelectorAll('textarea').forEach(t => { t.style.height='auto'; t.style.height = t.scrollHeight + 2 + 'px'; }); }
+window.addEventListener('resize', autosize);
+$('#prev').onclick = () => S && S.prev && load(S.prev);
+$('#next').onclick = () => S && S.next && load(S.next);
+$('#goToday').onclick = () => load('');
+
+/* 내 정보 메뉴 */
+$('#meBtn').onclick = () => {
+  const scrim = document.createElement('div');
+  scrim.className = 'scrim';
+  scrim.innerHTML = `<div class="sheet" role="dialog">
+    <h3>${esc(ME && ME.name || '')}님</h3>
+    <p class="muted">다른 기기(PC, 아이패드)에서도 이어 쓰려면 그 기기에서 [초대 코드가 있어요]를 누르고 이 코드를 입력하세요.</p>
+    <div class="codebox">${esc(fmtKey(KEY))}</div>
+    <div class="row">
+      <button class="btn pri" id="mCopy">코드 복사</button>
+      <button class="btn sec" id="mOut">이 기기에서 로그아웃</button>
+    </div></div>`;
+  document.body.appendChild(scrim);
+  scrim.onclick = e => { if (e.target === scrim) scrim.remove(); };
+  $('#mCopy').onclick = () => copy(fmtKey(KEY), '코드를 복사했어요');
+  $('#mOut').onclick = async () => {
+    if (!confirm('이 기기에서 로그아웃할까요? 코드를 다시 입력하면 기록은 그대로 보여요.')) return;
+    await flush(); scrim.remove(); clearKey(); showWelcome();
+  };
+};
+
+/* 아이폰 사파리: 홈 화면 추가 안내 (한 번 닫으면 다시 안 보여요) */
+function maybeHint(){
+  const mobile = isIOS() || /Android/i.test(navigator.userAgent);
+  if (!mobile || isStandalone() || store.get('nqt.hintOff')) return;
+  const el = document.createElement('div');
+  el.className = 'hint';
+  el.innerHTML = isIOS()
+    ? '공유 버튼 <b>⬆︎</b> → <b>홈 화면에 추가</b>하면 앱처럼 열려요.<br>홈 화면 앱에서 처음 열 때 코드를 한 번 더 입력해 주세요.<button aria-label="닫기">×</button>'
+    : '브라우저 메뉴에서 <b>홈 화면에 추가</b>(또는 <b>앱 설치</b>)를 누르면 앱처럼 열려요.<button aria-label="닫기">×</button>';
+  document.body.appendChild(el);
+  el.querySelector('button').onclick = () => { el.remove(); store.set('nqt.hintOff', true); };
+}
+
+/* ═════════ 시작 ═════════ */
+(function boot(){
+  // 초대 링크(…/#k=ABCDE-23456)로 들어온 경우 코드 저장
+  const m = location.hash.match(/k=([A-Za-z0-9-]{10,11})/);
+  if (m) { setKey(m[1]); history.replaceState(null, '', location.pathname + location.search); }
+  KEY = store.get('nqt.key');
+  if (!KEY) return showWelcome();
+  showLoading();
+  checkMe();
+})();
+
+/* ═════════ 미리보기용 가짜 서버 (config.js에 주소를 넣으면 쓰이지 않아요) ═════════ */
+function demoApi(action, p){
+  const D = window.__demo || (window.__demo = { status: /pending/.test(location.search) ? '대기' : '승인', notes: {} });
+  const today = '2026-10-13';
+  const day = date => ({ user:{name:'예진', status:D.status}, date: date || today, today, prev: '2026-10-12', next: '',
+    my: D.notes[date || today] || { word:'', god:'', wrapup:'', tongdokDone:false, updatedAt:'', marks:{} },
+    qt: { dateLabel:'2026년 10월 13일 화요일', title:'오늘 묵상의 제목이 여기에 들어가요', range:'시 4편',
+      prayer:'여는 기도 문장이 이 자리에 들어가요.', heading:'본문 머리말',
+      verses:[1,2,3,4,5,6,7,8].map(n => ({n, text:'수집된 성경 본문 ' + n + '절 내용이 이 자리에 표시돼요. 긴 절은 자연스럽게 줄바꿈 됩니다.'})),
+      notes:'주석 내용이 들어가요.', summary:'본문요약이 들어가요.', guide:'묵상을 돕는 글이 들어가요.',
+      wrapup:'말씀을 묵상하며 깨닫고 느낀 점, 기도하거나 실천하고 싶은 것을 적어 봅시다.', tongdok:'고전 17장' } });
+  return new Promise(res => setTimeout(() => {
+    if (action === 'request') { D.status = '대기'; res({ ok:true, key:'DEMOA-23456', user:{ name:p.name, status:'대기' } }); }
+    else if (action === 'me') res({ ok:true, user:{ name:'예진', status:D.status } });
+    else if (action === 'day' || action === 'refetch') res(Object.assign({ ok:true }, day(p.date)));
+    else if (action === 'highlights') res({ ok:true, items: Object.keys(D.notes).filter(d => Object.keys(D.notes[d].marks || {}).length).map(d => {
+        const q = day(d).qt; return { date:d, title:q.title, range:q.range, verses:q.verses.filter(v => D.notes[d].marks[v.n]).map(v => Object.assign({type:D.notes[d].marks[v.n]}, v)) }; }) });
+    else if (action === 'save') { D.notes[p.date] = Object.assign({}, p.data, {updatedAt:'10/13 14:00'}); res({ ok:true, updatedAt:'10/13 14:00' }); }
+    else res({ ok:true });
+  }, 150));
+}
+</script>
+</body>
+</html>
