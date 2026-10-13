@@ -394,6 +394,11 @@ function fmtDate(d){
   const [y,m,dd] = d.split('-').map(Number);
   return `${y}. ${m}. ${dd} (${'일월화수목금토'[new Date(y, m-1, dd).getDay()]})`;
 }
+const cleanTitle = t => String(t || '').replace(/^\s*[월화수목금토일]요일\s*/, '');
+function fullDate(d){
+  const [y,m,dd] = d.split('-').map(Number);
+  return `${y}년 ${m}월 ${dd}일 ${'일월화수목금토'[new Date(y, m-1, dd).getDay()]}요일`;
+}
 const draftKey = () => 'nqt.draft.' + normKey(KEY) + '.' + S.date;
 
 function render(){
@@ -418,8 +423,8 @@ function render(){
   $('#main').innerHTML = `
   <section class="col-read">
     <div class="head">
-      <div class="eyebrow">${esc(q.dateLabel || S.date)}</div>
-      <h1>${esc(q.title)}${q.range ? `<span class="range">${esc(q.range)}</span>` : ''}</h1>
+      <div class="eyebrow">${esc(fullDate(S.date))}</div>
+      <h1>${esc(cleanTitle(q.title))}${q.range ? `<span class="range">${esc(q.range)}</span>` : ''}</h1>
       ${q.tongdok ? `<button class="tong ${my.tongdokDone?'done':''}" id="tong"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l3 3 5-6" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></span>통독 ${esc(q.tongdok)}</button>` : ''}
     </div>
     ${q.prayer ? `<div class="card pray"><span class="pill">여는 기도</span><p>${esc(q.prayer)}</p></div>` : ''}
@@ -482,7 +487,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 
 function copyNote(){
   const q = S.qt, d = collect();
-  const parts = [`[${fmtDate(S.date)}] ${q.title}${q.range ? ' (' + q.range + ')' : ''}`];
+  const parts = [`[${fmtDate(S.date)}] ${cleanTitle(q.title)}${q.range ? ' (' + q.range + ')' : ''}`];
   const marked = (q.verses || []).filter(v => d.marks[v.n]);
   if (marked.length) parts.push('■ 표시한 구절\n' + marked.map(v => v.n + ' ' + v.text).join('\n'));
   if (d.word)   parts.push('■ 와닿는 단어나 구절, 생각과 느낌\n' + d.word);
@@ -546,7 +551,7 @@ $('#collectBtn').onclick = async () => {
     const list = $('#hlist');
     if (!r.items.length) { list.innerHTML = '<div class="empty"><h2>아직 표시한 구절이 없어요</h2><p>본문에서 절을 누르고 형광펜이나 밑줄을 칠해 보세요.</p></div>'; return; }
     list.innerHTML = r.items.map(g => `<div class="hgroup" data-d="${esc(g.date)}">
-      <div class="hd2"><b>${esc(g.title)}${g.range ? ' <small>' + esc(g.range) + '</small>' : ''}</b><small>${esc(fmtDate(g.date))}</small></div>
+      <div class="hd2"><b>${esc(cleanTitle(g.title))}${g.range ? ' <small>' + esc(g.range) + '</small>' : ''}</b><small>${esc(fmtDate(g.date))}</small></div>
       ${g.verses.map(v => `<p class="v ${esc(v.type)}"><b>${esc(v.n)}</b><span>${esc(v.text)}</span></p>`).join('')}</div>`).join('');
     list.querySelectorAll('.hgroup').forEach(el => el.onclick = () => { full.remove(); document.querySelector('.seg button[data-t=read]').click(); load(el.dataset.d); });
   } catch(e){
