@@ -14,7 +14,7 @@
 <link rel="icon" type="image/png" href="icons/favicon-32.png">
 <!-- 서브셋에 없는 드문 글자만 같은 프리텐다드 웹폰트로 채워요 -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
-<script src="config.js"></script>
+<script>document.write('<script src="config.js?t=' + Date.now() + '"><\/script>');</script>
 <style>
   @font-face{font-family:'PretendardQT';font-weight:400;font-display:swap;src:url(fonts/PretendardQT-400.woff2) format('woff2')}
   @font-face{font-family:'PretendardQT';font-weight:600;font-display:swap;src:url(fonts/PretendardQT-600.woff2) format('woff2')}
@@ -83,7 +83,7 @@
   /* 하이라이트 */
   .v{cursor:pointer;border-radius:6px;margin-left:-6px;margin-right:-6px;padding:2px 6px;transition:background .12s}
   .v span{transition:background .12s}
-  .v.hl span{background:linear-gradient(transparent 40%, #ffe873 40%, #ffe873 92%, transparent 92%);-webkit-box-decoration-break:clone;box-decoration-break:clone}
+  .v.hl span{background:linear-gradient(transparent 40%, #FAFAD2 40%, #FAFAD2 92%, transparent 92%);-webkit-box-decoration-break:clone;box-decoration-break:clone}
   .v.ul span{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:5px}
   .v.sel{background:#ececea;outline:1.5px solid var(--ink)}
   .bible .tip{font-size:12px;color:var(--ink-3);margin:-4px 0 12px}
@@ -92,10 +92,10 @@
   .mtool button{white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;border-radius:11px;font-size:12px;font-weight:600;min-width:58px}
   .mtool button:active{background:#2a2a2a}
   .mtool .sw{width:22px;height:16px;border-radius:4px;display:grid;place-items:center;font-size:13px;font-weight:800}
-  .mtool .sw.hl{background:#ffe873;color:#111} .mtool .sw.ul{text-decoration:underline;text-underline-offset:3px}
+  .mtool .sw.hl{background:#FAFAD2;color:#111} .mtool .sw.ul{text-decoration:underline;text-underline-offset:3px}
   .mtool .cnt{align-self:center;font-size:12px;opacity:.6;padding:0 8px 0 6px;white-space:nowrap}
   .collect{height:32px;border-radius:999px;padding:0 13px;background:#fff;border:1px solid var(--line);font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px;white-space:nowrap}
-  .collect i{width:12px;height:9px;border-radius:2px;background:#ffe873;display:block}
+  .collect i{width:12px;height:9px;border-radius:2px;background:#FAFAD2;display:block}
   /* 모아보기 */
   .full{position:fixed;inset:0;z-index:35;background:var(--bg);overflow:auto;-webkit-overflow-scrolling:touch}
   .full .bar-in{justify-content:space-between}
@@ -224,12 +224,13 @@
  * 나중에 저장소를 Supabase 등으로 옮기면 이 부분만 바꾸면 돼요.
  */
 const CFG = window.NQT_CONFIG || {};
-const DEMO = /[?&]demo\b/.test(location.search) || !/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(CFG.API_URL || '');
+const DEMO = /[?&]demo\b/.test(location.search);
+const API_OK = /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test((CFG.API_URL || '').trim());
 let KEY = null, ME = null;
 
 async function api(action, payload, opts){
   if (DEMO) return demoApi(action, payload || {});
-  const res = await fetch(CFG.API_URL, {
+  const res = await fetch(CFG.API_URL.trim(), {
     method:'POST',
     headers:{'Content-Type':'text/plain;charset=utf-8'},   // 단순 요청(사전 확인 없이 바로 전송)
     body: JSON.stringify(Object.assign({action, key: KEY}, payload || {})),
@@ -341,7 +342,7 @@ async function checkMe(fromGate){
     const r = await api('me');
     ME = r.user;
     if (ME.status === '승인') { startApp(); }
-    else if (ME.status === '대기') { showPending(); if (fromGate === true) toast('아직 승인 전이에요'); }
+    else if (ME.status === '대기') { showPending(); if (fromGate === true) toast('아직 승인 전이에요. 시트에서 상태를 "승인"으로 바꿨는지 확인해 주세요'); }
     else showBlocked();
   } catch(e){
     if (e.code === 'NO_USER') { clearKey(); showCodeInput('코드를 찾을 수 없어요. 다시 확인해 주세요.'); }
@@ -599,6 +600,14 @@ function maybeHint(){
   // 초대 링크(…/#k=ABCDE-23456)로 들어온 경우 코드 저장
   const m = location.hash.match(/k=([A-Za-z0-9-]{10,11})/);
   if (m) { setKey(m[1]); history.replaceState(null, '', location.pathname + location.search); }
+  if (!DEMO && !API_OK) {
+    return showGate(`<div class="panel" style="margin-top:28px"><h3>서버 주소 설정이 잘못됐어요</h3>
+      <p>GitHub의 <b>config.js</b>에 Apps Script 웹 앱 주소가 정확히 들어갔는지 확인해 주세요.<br>
+      <b>https://script.google.com/macros/s/…/exec</b> 형태여야 해요.</p>
+      <p style="word-break:break-all;color:var(--ink-3);font-size:12px">지금 값: ${esc(CFG.API_URL || '(비어 있음)')}</p></div>`);
+  }
+  // 예전 미리보기 모드에서 남은 가짜 코드는 지워요
+  if (!DEMO && normKey(store.get('nqt.key')) === 'DEMOA23456') store.del('nqt.key');
   KEY = store.get('nqt.key');
   if (!KEY) return showWelcome();
   showLoading();
