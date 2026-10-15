@@ -80,6 +80,33 @@
   summary i{font-style:normal;font-weight:500;color:var(--ink-3);font-size:13px}
   details[open] summary i::after{content:'접기'} details:not([open]) summary i::after{content:'펼치기'}
   .exp{padding:0 2px 6px;font-size:calc(var(--fs) * .95);line-height:1.85;color:var(--ink-2);white-space:pre-line;margin:0}
+  /* 역본 탭 · 장 구분 */
+  .vtabs{display:flex;gap:4px;background:#e7e7e4;border-radius:12px;padding:3px;margin:0 0 10px}
+  .vtabs button{flex:1;padding:8px 6px;border-radius:9px;font-size:13.5px;font-weight:700;color:var(--ink-3);white-space:nowrap}
+  .vtabs button.on{background:var(--ink);color:#fff}
+  .chap{font-size:12.5px;font-weight:800;color:var(--ink-3);letter-spacing:.04em;margin:18px 0 8px;display:flex;align-items:center;gap:10px}
+  .chap::after{content:'';flex:1;height:1px;background:var(--line)}
+  .chap:first-of-type{margin-top:4px}
+  .nav .d{cursor:pointer;border-radius:8px;padding:6px 8px;white-space:nowrap;color:#fff;display:block;width:auto;height:auto}
+  .nav .d::after{content:' ▾';font-size:10px;opacity:.6}
+  @media (hover:hover){ .nav .d:hover{background:#2a2a2a} }
+  /* 달력 */
+  .cal-h{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px}
+  .cal-h b{font-size:17px}
+  .cal-h button{width:40px;height:40px;border-radius:10px;font-size:18px}
+  .cal-h button:disabled{opacity:.2}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center}
+  .cal .w{font-size:12px;color:var(--ink-3);font-weight:700;padding:4px 0}
+  .cal .w:first-child{color:#c0392b}
+  .cal button{aspect-ratio:1;border-radius:12px;font-size:15px;font-weight:700;position:relative;display:grid;place-items:center}
+  .cal button:disabled{color:#c8c8c8;font-weight:500;cursor:default}
+  .cal button.today{box-shadow:inset 0 0 0 1.5px var(--ink)}
+  .cal button.cur{background:var(--ink);color:#fff}
+  .cal button.wr::after{content:'';position:absolute;bottom:6px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:currentColor}
+  .cal-legend{display:flex;gap:14px;justify-content:center;font-size:12px;color:var(--ink-3);margin-top:12px}
+  .cal-legend span{display:inline-flex;align-items:center;gap:5px}
+  .cal-legend i{width:5px;height:5px;border-radius:50%;background:var(--ink);display:inline-block}
+  .cal-legend em{width:14px;height:14px;border-radius:5px;box-shadow:inset 0 0 0 1.5px var(--ink);display:inline-block}
   /* 하이라이트 */
   .v{cursor:pointer;border-radius:6px;margin-left:-6px;margin-right:-6px;padding:2px 6px;transition:background .12s}
   .v span{transition:background .12s}
@@ -107,6 +134,21 @@
   .hgroup .hd2 small{font-size:12px;color:var(--ink-3);white-space:nowrap}
   .hgroup .v{cursor:inherit;margin:0 0 .4em;padding:0;font-size:calc(var(--fs) * .95)}
   .write{position:sticky;top:76px}
+  .btn.icon{padding:0 16px;flex:none}
+  .posted{display:inline-flex;align-items:center;gap:6px;color:var(--ink);font-weight:600}
+  .posted a{color:var(--ink)}
+  .steps{display:grid;gap:10px;margin-top:6px}
+  .step{border:1.5px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:10px}
+  .step.done{border-color:var(--ink);background:#fafafa}
+  .step .t{display:flex;align-items:center;gap:10px;font-weight:800;font-size:15px}
+  .step .t i{font-style:normal;width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:12.5px;flex:none}
+  .step.done .t i{background:#2e7d32}
+  .step .pv{font-size:13.5px;color:var(--ink-2);line-height:1.55;background:#f4f4f2;border-radius:10px;padding:10px 12px;white-space:pre-line;max-height:84px;overflow:hidden}
+  .head-pill{display:inline-block;background:var(--ink);color:#fff;border-radius:6px;padding:1px 8px;font-size:12.5px;font-weight:800;margin:0 2px}
+  .gate select{width:100%;height:50px;border:1px solid var(--line);border-radius:12px;padding:0 12px;font:inherit;font-size:16px;background:#fafafa;margin-bottom:10px;color:var(--ink)}
+  .sheet select{width:100%;height:48px;border:1px solid var(--line);border-radius:12px;padding:0 12px;font:inherit;font-size:16px;background:#fafafa}
+  .sheet .sec-t{font-size:13px;font-weight:800;margin:18px 0 8px;color:var(--ink-2)}
+  .sheet{max-height:88vh;overflow:auto}
   .f{margin-bottom:18px}
   .f label{display:block;font-weight:800;font-size:15px;margin:0 0 8px}
   .f label small{display:block;font-weight:500;color:var(--ink-3);font-size:12.5px;margin-top:3px;line-height:1.5}
@@ -157,7 +199,7 @@
   .hint b{font-weight:800}
   .hint button{position:absolute;right:8px;top:8px;width:30px;height:30px;color:#fff;font-size:18px}
 
-  .toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;background:var(--ink);color:#fff;
+  .toast{position:fixed;left:50%;top:calc(66px + env(safe-area-inset-top));transform:translate(-50%,-12px);opacity:0;background:var(--ink);color:#fff;
     padding:11px 18px;border-radius:999px;font-size:14px;font-weight:600;transition:.2s;pointer-events:none;z-index:40;white-space:nowrap}
   .toast.show{opacity:1;transform:translate(-50%,0)}
   .spin{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--ink);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto}
@@ -197,7 +239,7 @@
     <div class="brand"><img src="icons/logo-white.svg" alt="NEWSONG"><span>NEWSONG QT</span></div>
     <div class="nav">
       <button id="prev" aria-label="이전 날짜"><svg width="10" height="12" viewBox="0 0 10 12"><path d="M9 1 2 6l7 5z" fill="currentColor"/></svg></button>
-      <span class="d" id="dateLabel">불러오는 중</span>
+      <button class="d" id="dateLabel" aria-label="날짜 선택">불러오는 중</button>
       <button id="next" aria-label="다음 날짜"><svg width="10" height="12" viewBox="0 0 10 12"><path d="m1 1 7 5-7 5z" fill="currentColor"/></svg></button>
     </div>
     <div class="side">
@@ -263,6 +305,20 @@ function copy(text, msg){
   if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, fallback); else fallback();
 }
 
+/* ═════════ 네트워크 고르기 (가입·변경 공용) ═════════ */
+function netFieldsHtml(nets, current, placeholder){
+  return `<select class="netSel">
+      ${placeholder ? `<option value="" ${current ? '' : 'selected'} disabled>소속 네트워크 선택</option>` : ''}
+      ${(nets || []).map(n => `<option value="${esc(n)}" ${n === current ? 'selected' : ''}>${esc(n)}</option>`).join('')}
+    </select>
+    <p class="tip2" style="font-size:12px;color:var(--ink-3);margin:-4px 0 10px">목록에 내 네트워크가 없으면 관리자에게 알려주세요.</p>`;
+}
+function bindNetFields(){}
+function readNetFields(root){
+  const v = root.querySelector('.netSel').value;
+  return v ? { network: v } : null;
+}
+
 /* ═════════ 시작 화면들 ═════════ */
 function showGate(html){
   $('#app').hidden = true; $('#gate').hidden = false;
@@ -273,17 +329,26 @@ function showWelcome(msg){
   showGate(`<p class="sub">오늘의 시심나를 읽고, 묵상을 적어요.</p>
     <div class="panel" id="p1">
       <h3>처음 오셨나요?</h3>
-      <p>이름을 남겨주시면 관리자가 확인 후 열어드려요.</p>
+      <p>이름과 소속 네트워크를 남겨주시면 관리자가 확인 후 열어드려요.</p>
       <input id="nm" maxlength="20" placeholder="이름 (예: 홍길동)" autocomplete="name">
+      <div id="netBox">${netFieldsHtml([], '', true)}</div>
       <div class="err" id="err1">${esc(msg || '')}</div>
       <button class="btn pri" id="reqBtn">사용 신청하기</button>
     </div>
     <button class="link" id="haveCode">초대 코드가 있어요</button>`);
+  bindNetFields($('#netBox'));
+  api('networks').then(r => {
+    const box = $('#netBox'); if (!box) return;
+    box.innerHTML = netFieldsHtml(r.networks, '', true); bindNetFields(box);
+  }).catch(() => {});
   $('#reqBtn').onclick = async () => {
     const name = $('#nm').value.trim();
     if (!name) { $('#err1').textContent = '이름을 입력해 주세요.'; return; }
+    let net;
+    try { net = readNetFields($('#netBox')); } catch(e){ $('#err1').textContent = e.message; return; }
+    if (!net) { $('#err1').textContent = '소속 네트워크를 골라주세요.'; return; }
     $('#reqBtn').disabled = true; $('#reqBtn').textContent = '신청하는 중…';
-    try { const r = await api('request', {name}); setKey(r.key); ME = r.user; showPending(); }
+    try { const r = await api('request', Object.assign({name}, net)); setKey(r.key); ME = r.user; showPending(); }
     catch(e){ $('#err1').textContent = e.message || '신청에 실패했어요.'; $('#reqBtn').disabled = false; $('#reqBtn').textContent = '사용 신청하기'; }
   };
   $('#haveCode').onclick = () => showCodeInput();
@@ -356,10 +421,10 @@ async function checkMe(fromGate){
 /* ═════════ 본 앱 ═════════ */
 let S = null, dirty = false, saveTimer = null;
 
-function startApp(){
+function startApp(first){
   $('#gate').hidden = true; $('#app').hidden = false;
   $('#meBtn').textContent = (ME && ME.name || '나').trim().slice(-2);
-  load('');
+  load('', first);
   maybeHint();
 }
 
@@ -375,12 +440,50 @@ document.querySelectorAll('.seg button').forEach(b => b.onclick = () => {
   document.querySelectorAll('.bible .v.sel').forEach(p => p.classList.remove('sel')); selected.clear(); hideTool();
 });
 
-async function load(date){
+/* ═════════ 빠른 화면: 이 기기에 저장해 둔 날짜를 먼저 보여주고, 뒤에서 새로 받아와요 ═════════ */
+function localToday(){ const d = new Date(Date.now() + 9 * 3600e3); return d.toISOString().slice(0, 10); } // 한국 날짜
+const dayKey = d => 'nqt.day.' + normKey(KEY) + '.' + d;
+function cacheDay(r){
+  if (!r || !r.date) return;
+  store.set(dayKey(r.date), r);
+  const idx = (store.get('nqt.days') || []).filter(d => d !== r.date); idx.unshift(r.date);
+  idx.slice(14).forEach(d => store.del(dayKey(d)));   // 최근 14일만 보관
+  store.set('nqt.days', idx.slice(0, 14));
+}
+let loadSeq = 0;
+async function load(date, fresh){
   await flush();
-  $('#dateLabel').textContent = '불러오는 중';
-  $('#main').innerHTML = '<div class="empty"><div class="spin"></div></div>';
-  try { S = await api('day', {date: date || ''}); render(); }
-  catch(e){ handleAuthError(e) || ($('#main').innerHTML = `<div class="empty"><h2>불러오지 못했어요</h2><p>${esc(e.message || '인터넷 연결을 확인해 주세요.')}</p><button class="btn pri" style="flex:none" onclick="load('${esc(date||'')}')">다시 시도</button></div>`); }
+  const target = date || localToday(), seq = ++loadSeq;
+  const cached = fresh ? null : store.get(dayKey(target));
+  if (fresh) { S = fresh; cacheDay(fresh); render(); prefetch(); return; }
+  if (cached) { S = cached; render(); }
+  else {
+    $('#dateLabel').textContent = '불러오는 중';
+    $('#main').innerHTML = '<div class="empty"><div class="spin"></div></div>';
+  }
+  try {
+    const r = await api('day', {date: date || ''});
+    if (seq !== loadSeq) return;                       // 그새 다른 날짜로 이동했으면 무시
+    if (r.user) ME = r.user;
+    cacheDay(r);
+    if (!cached || dirty) {
+      if (!cached) { S = r; render(); }
+      else { S.qt = r.qt; S.prev = r.prev; S.next = r.next; S.user = r.user; }   // 작성 중이면 글은 건드리지 않아요
+    } else if (JSON.stringify(r) !== JSON.stringify(cached)) {
+      const y = window.scrollY; S = r; render(); window.scrollTo(0, y);
+    }
+    prefetch();
+  } catch(e){
+    if (seq !== loadSeq) return;
+    if (handleAuthError(e)) return;
+    if (!cached) $('#main').innerHTML = `<div class="empty"><h2>불러오지 못했어요</h2><p>${esc(e.message || '인터넷 연결을 확인해 주세요.')}</p><button class="btn pri" style="flex:none" onclick="load('${esc(date||'')}')">다시 시도</button></div>`;
+    else toast('최신 내용을 불러오지 못했어요');
+  }
+}
+/* 전날 묵상을 미리 받아둬서 ◀ 를 누르면 바로 열려요 */
+function prefetch(){
+  if (!S || !S.prev || store.get(dayKey(S.prev))) return;
+  api('day', {date: S.prev}).then(cacheDay).catch(() => {});
 }
 
 function handleAuthError(e){
@@ -400,6 +503,40 @@ function fullDate(d){
   return `${y}년 ${m}월 ${dd}일 ${'일월화수목금토'[new Date(y, m-1, dd).getDay()]}요일`;
 }
 const draftKey = () => 'nqt.draft.' + normKey(KEY) + '.' + S.date;
+
+/* 절 키는 '장:절'(23:1). 예전 기록('1')도 읽어요 */
+const vKey = v => v.c ? v.c + ':' + v.n : String(v.n);
+const markOf = (marks, v) => (marks || {})[vKey(v)] || (marks || {})[String(v.n)] || '';
+const multiChap = q => new Set((q.verses || []).map(v => v.c).filter(Boolean)).size > 1;
+const vLabel = (q, v) => multiChap(q) && v.c ? `${v.c}:${v.n}` : `${v.n}절`;
+
+const VERS = [{ id:'NEW', name:'새번역' }, { id:'GAE', name:'개역개정' }, { id:'EASY', name:'쉬운성경' }, { id:'NIV', name:'NIV' }];
+function curVer(q){
+  const v = store.get('nqt.ver') || 'NEW';
+  return v === 'NEW' || (q.versions && q.versions[v] && q.versions[v].length) ? v : 'NEW';
+}
+function bibleInner(q, marks){
+  const ver = curVer(q);
+  const avail = VERS.filter(x => x.id === 'NEW' || (q.versions && q.versions[x.id] && q.versions[x.id].length));
+  const list = ver === 'NEW' ? (q.verses || []) : q.versions[ver];
+  const multi = multiChap(q);
+  let lastC = null;
+  const rows = list.map(v => {
+    let h = '';
+    if (multi && v.c && v.c !== lastC) { h += `<p class="chap">${esc(v.c)}장</p>`; lastC = v.c; }
+    return h + `<p class="v ${esc(markOf(marks, v))}" data-k="${esc(vKey(v))}"><b>${esc(v.n)}</b><span>${esc(v.text)}</span></p>`;
+  }).join('');
+  return `${avail.length > 1 ? `<div class="vtabs">${avail.map(x => `<button data-v="${x.id}" class="${x.id === ver ? 'on' : ''}">${x.name}</button>`).join('')}</div>` : ''}
+    ${ver === 'NEW' && q.heading ? `<p class="hd">[${esc(q.heading)}]</p>` : ''}
+    ${list.length ? '<p class="tip">절을 누르면 형광펜·밑줄을 칠 수 있어요</p>' : ''}
+    ${rows}`;
+}
+function renderBible(){
+  const box = $('#bible'); if (!box || !S || !S.qt) return;
+  box.innerHTML = bibleInner(S.qt, S.my.marks);
+  box.querySelectorAll('.vtabs button').forEach(b => b.onclick = () => { store.set('nqt.ver', b.dataset.v); renderBible(); });
+  bindVerses();
+}
 
 function render(){
   $('#dateLabel').textContent = fmtDate(S.date);
@@ -428,11 +565,7 @@ function render(){
       ${q.tongdok ? `<button class="tong ${my.tongdokDone?'done':''}" id="tong"><span class="box"><svg width="10" height="8" viewBox="0 0 10 8"><path d="M1 4l3 3 5-6" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></span>통독 ${esc(q.tongdok)}</button>` : ''}
     </div>
     ${q.prayer ? `<div class="card pray"><span class="pill">여는 기도</span><p>${esc(q.prayer)}</p></div>` : ''}
-    <div class="card bible">
-      ${q.heading ? `<p class="hd">[${esc(q.heading)}]</p>` : ''}
-      ${(q.verses||[]).length ? '<p class="tip">절을 누르면 형광펜·밑줄을 칠 수 있어요</p>' : ''}
-      ${(q.verses||[]).map(v => `<p class="v ${esc((my.marks||{})[v.n] || '')}" data-n="${esc(v.n)}"><b>${esc(v.n)}</b><span>${esc(v.text)}</span></p>`).join('')}
-    </div>
+    <div class="card bible" id="bible"></div>
     ${sec('주석', q.notes)}${sec('본문요약', q.summary)}${sec('묵상을 돕는 글', q.guide)}
     <button class="btn pri to-write" id="toWrite">묵상 쓰러 가기</button>
   </section>
@@ -440,15 +573,17 @@ function render(){
     <div class="f"><label for="word">와닿는 단어나 구절, 생각과 느낌</label><textarea id="word">${esc(my.word)}</textarea></div>
     <div class="f"><label for="god">하나님에 대한 생각, 느낌, 깨달음</label><textarea id="god">${esc(my.god)}</textarea></div>
     <div class="f"><label for="wrapup">묵상 정리<small>${esc(q.wrapup || '깨닫고 느낀 점, 기도하거나 실천하고 싶은 것')}</small></label><textarea id="wrapup" class="big">${esc(my.wrapup)}</textarea></div>
-    <div class="acts"><button class="btn pri" id="save">임시저장</button><button class="btn sec" id="copy">복사하기</button></div>
+    <div class="acts"><button class="btn sec" id="save">임시저장</button><button class="btn sec icon" id="copy" aria-label="복사하기">복사</button><button class="btn pri" id="cafe">카페에 올리기</button></div>
     <div class="status" id="status">${my.updatedAt ? '마지막 저장 · ' + esc(my.updatedAt) : ''}</div>
+    <div class="status" id="postedLine">${postedHtml(my.posted)}</div>
   </div></section>`;
 
   S.my = my; S.my.marks = Object.assign({}, my.marks || {});
-  bindVerses();
+  renderBible();
   ['word','god','wrapup'].forEach(id => $('#'+id).addEventListener('input', onEdit));
   $('#save').onclick = () => save(true);
   $('#copy').onclick = copyNote;
+  $('#cafe').onclick = openCafe;
   $('#toWrite').onclick = () => document.querySelector('.seg button[data-t=write]').click();
   const t = $('#tong'); if (t) t.onclick = () => { S.my.tongdokDone = !S.my.tongdokDone; t.classList.toggle('done', S.my.tongdokDone); onEdit(); };
   autosize();
@@ -474,6 +609,7 @@ async function save(manual, keepalive){
   try {
     const r = await saving;
     dirty = false; store.del(dk);
+    const cd = store.get(dayKey(date)); if (cd) { cd.my = Object.assign({}, cd.my, data, { updatedAt: r.updatedAt }); store.set(dayKey(date), cd); }
     if (S && S.date === date) { Object.assign(S.my, data); const st = $('#status'); if (st) st.textContent = '저장됨 · ' + r.updatedAt; }
     if (manual) toast('임시저장했어요');
   } catch(e){
@@ -488,12 +624,132 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 function copyNote(){
   const q = S.qt, d = collect();
   const parts = [`[${fmtDate(S.date)}] ${cleanTitle(q.title)}${q.range ? ' (' + q.range + ')' : ''}`];
-  const marked = (q.verses || []).filter(v => d.marks[v.n]);
-  if (marked.length) parts.push('■ 표시한 구절\n' + marked.map(v => v.n + ' ' + v.text).join('\n'));
+  const marked = (q.verses || []).filter(v => markOf(d.marks, v));
+  if (marked.length) parts.push('■ 표시한 구절\n' + marked.map(v => (multiChap(q) && v.c ? v.c + ':' : '') + v.n + ' ' + v.text).join('\n'));
   if (d.word)   parts.push('■ 와닿는 단어나 구절, 생각과 느낌\n' + d.word);
   if (d.god)    parts.push('■ 하나님에 대한 생각, 느낌, 깨달음\n' + d.god);
   if (d.wrapup) parts.push('■ 묵상 정리\n' + d.wrapup);
   copy(parts.join('\n\n'));
+}
+
+/* ═════════ 카페에 올리기 ═════════
+ * 자동(네이버 연결된 계정): 서버가 네이버 카페 API로 바로 게시
+ * 반자동(그 외): ① 제목 복사 + 글쓰기 화면 열기 → ② 본문 복사
+ */
+function postedHtml(p){
+  if (!p) return '';
+  return `<span class="posted">✓ 카페에 올림 · ${esc(p.text)}${p.url ? ` · <a href="${esc(p.url)}" target="_blank" rel="noopener">글 보기</a>` : ''}</span>`;
+}
+function composeTitle(){
+  const b = ME.board, q = S.qt, [y, m, d] = S.date.split('-').map(Number);
+  return (b.titleFormat || '{월}/{일}({요일}) {제목} ({범위})')
+    .replace(/\{월\}/g, m).replace(/\{일\}/g, d).replace(/\{요일\}/g, '일월화수목금토'[new Date(y, m-1, d).getDay()])
+    .replace(/\{제목\}/g, cleanTitle(q.title)).replace(/\{범위\}/g, q.range || '')
+    .replace(/\{이름\}/g, ME.name || '').replace(/\{말머리\}/g, b.head || '')
+    .replace(/\(\s*\)/g, '').replace(/\s+/g, ' ').trim();
+}
+function composeBody(){
+  const q = S.qt, d = collect(), parts = [];
+  const marked = (q.verses || []).filter(v => markOf(d.marks, v));
+  if (marked.length) parts.push('■ 표시한 구절\n' + marked.map(v => (multiChap(q) && v.c ? v.c + ':' : '') + v.n + ' ' + v.text).join('\n'));
+  if (d.word)   parts.push('■ 와닿는 단어나 구절, 생각과 느낌\n' + d.word);
+  if (d.god)    parts.push('■ 하나님에 대한 생각, 느낌, 깨달음\n' + d.god);
+  if (d.wrapup) parts.push('■ 묵상 정리\n' + d.wrapup);
+  return parts.join('\n\n');
+}
+function sheet(html){
+  document.querySelectorAll('.scrim').forEach(x => x.remove());
+  const scrim = document.createElement('div'); scrim.className = 'scrim';
+  scrim.innerHTML = `<div class="sheet" role="dialog">${html}</div>`;
+  document.body.appendChild(scrim);
+  scrim.onclick = e => { if (e.target === scrim || e.target.closest('[data-close]')) scrim.remove(); };
+  return scrim;
+}
+
+async function openCafe(){
+  const d = collect();
+  if (!d.word.trim() && !d.god.trim() && !d.wrapup.trim()) { toast('먼저 묵상을 적어주세요'); return; }
+  if (!ME.board) return pickNetwork(() => openCafe());
+  if (ME.auto && ME.naverLinked) return autoSheet();
+  if (ME.auto && !ME.naverLinked) {
+    const sc = sheet(`<h3>네이버 연결이 필요해요</h3>
+      <p class="muted">한 번 연결해 두면 다음부터는 버튼 한 번으로 카페에 바로 올라가요.</p>
+      <div class="row"><button class="btn pri" id="nLink">네이버 연결하기</button><button class="btn sec" id="nSemi">이번엔 직접 올리기</button></div>`);
+    sc.querySelector('#nLink').onclick = () => linkNaver();
+    sc.querySelector('#nSemi').onclick = () => semiSheet();
+    return;
+  }
+  semiSheet();
+}
+
+function semiSheet(){
+  const b = ME.board, title = composeTitle(), body = composeBody();
+  const mobile = isIOS() || /Android/i.test(navigator.userAgent);
+  const url = mobile ? b.writeUrlMobile : b.writeUrl;
+  const sc = sheet(`<h3>${esc(b.network)} 게시판에 올리기</h3>
+    <p class="muted">글쓰기 화면에서 말머리 <span class="head-pill">${esc(b.head || '없음')}</span>을(를) 꼭 골라주세요.</p>
+    <div class="steps">
+      <div class="step" id="st1"><div class="t"><i>1</i>제목 복사하고 글쓰기 열기</div><div class="pv">${esc(title)}</div>
+        <button class="btn pri" id="go1">제목 복사 + 카페 열기</button></div>
+      <div class="step" id="st2"><div class="t"><i>2</i>앱으로 돌아와 본문 복사</div><div class="pv">${esc(body)}</div>
+        <button class="btn sec" id="go2">본문 복사</button></div>
+    </div>
+    <div class="row"><button class="btn sec" data-close>닫기</button></div>`);
+  sc.querySelector('#go1').onclick = () => {
+    copy(title, '제목을 복사했어요');
+    sc.querySelector('#st1').classList.add('done');
+    const btn2 = sc.querySelector('#go2'); btn2.classList.remove('sec'); btn2.classList.add('pri');
+    sc.querySelector('#go1').classList.replace('pri', 'sec');
+    if (url) window.open(url, '_blank', 'noopener'); else toast('게시판 주소가 설정되지 않았어요');
+  };
+  sc.querySelector('#go2').onclick = () => { copy(body, '본문을 복사했어요. 카페에 붙여넣어 주세요'); sc.querySelector('#st2').classList.add('done'); };
+}
+
+function autoSheet(){
+  const b = ME.board, posted = S.my.posted;
+  const sc = sheet(`<h3>${esc(b.network)} 게시판에 올릴까요?</h3>
+    ${posted ? `<p class="muted"><b>이미 ${esc(posted.text)}에 올린 묵상이에요.</b> 다시 올리면 글이 하나 더 생겨요.</p>` : ''}
+    <div class="step"><div class="pv" style="max-height:none"><b>${esc(composeTitle())}</b>\n\n${esc(composeBody()).slice(0, 220)}${composeBody().length > 220 ? '…' : ''}</div></div>
+    <p class="muted" style="margin-top:12px">말머리(${esc(b.head || '없음')})는 자동 지정이 안 될 수 있어요. 올린 뒤 카페에서 확인해 주세요.</p>
+    <div class="row"><button class="btn pri" id="aGo">${posted ? '한 번 더 올리기' : '카페에 올리기'}</button><button class="btn sec" id="aSemi">직접 올리기(복사 방식)</button></div>`);
+  sc.querySelector('#aSemi').onclick = () => semiSheet();
+  sc.querySelector('#aGo').onclick = async () => {
+    const go = sc.querySelector('#aGo'); go.disabled = true; go.textContent = '올리는 중…';
+    try {
+      await flush(); await save(false);
+      const r = await api('post', {date: S.date, force: !!posted});
+      S.my.posted = r.posted; $('#postedLine').innerHTML = postedHtml(r.posted);
+      sheet(`<h3>카페에 올렸어요 🙌</h3><p class="muted">${esc(r.headNote || '')}</p>
+        <div class="row">${r.posted && r.posted.url ? `<a class="btn pri" style="display:grid;place-items:center;text-decoration:none" href="${esc(r.posted.url)}" target="_blank" rel="noopener">카페에서 보기</a>` : ''}<button class="btn sec" data-close>닫기</button></div>`);
+    } catch(e){
+      if (handleAuthError(e)) return;
+      if (e.code === 'NAVER_NOT_LINKED') { ME.naverLinked = false; return openCafe(); }
+      go.disabled = false; go.textContent = '다시 시도';
+      const p = document.createElement('p'); p.className = 'muted'; p.style.color = '#b42318'; p.textContent = (e.message || '실패했어요') + ' 직접 올리기로 대신 올릴 수 있어요.';
+      sc.querySelector('.row').before(p);
+    }
+  };
+}
+
+async function linkNaver(){
+  try { const r = await api('naverAuthUrl'); location.href = r.url; }
+  catch(e){ if (!handleAuthError(e)) toast(e.message || '연결 주소를 만들지 못했어요'); }
+}
+
+function pickNetwork(then){
+  const sc = sheet(`<h3>내 네트워크 선택</h3>
+    <p class="muted">묵상을 올릴 카페 게시판을 정해요. 나중에 내 정보에서 바꿀 수 있어요.</p>
+    <div id="pnBox">${netFieldsHtml(ME.networks || [], ME.network, !ME.network)}</div>
+    <div class="err" id="pnErr" style="color:#b42318;font-size:13px;min-height:18px"></div>
+    <div class="row"><button class="btn pri" id="netOk">저장</button><button class="btn sec" data-close>취소</button></div>`);
+  bindNetFields(sc.querySelector('#pnBox'));
+  sc.querySelector('#netOk').onclick = async () => {
+    let net;
+    try { net = readNetFields(sc.querySelector('#pnBox')); } catch(e){ sc.querySelector('#pnErr').textContent = e.message; return; }
+    if (!net) { sc.querySelector('#pnErr').textContent = '네트워크를 골라주세요.'; return; }
+    try { const r = await api('setNetwork', net); ME = r.user; sc.remove(); toast('네트워크를 저장했어요'); if (then) then(); }
+    catch(e){ if (!handleAuthError(e)) sc.querySelector('#pnErr').textContent = e.message || '저장하지 못했어요'; }
+  };
 }
 
 /* ═════════ 하이라이트 ═════════ */
@@ -502,8 +758,8 @@ function bindVerses(){
   selected = new Set(); hideTool();
   document.querySelectorAll('.bible .v').forEach(p => p.onclick = () => {
     if (window.getSelection && String(window.getSelection()).length) return; // 글자를 드래그 중이면 무시
-    const n = p.dataset.n;
-    if (selected.has(n)) { selected.delete(n); p.classList.remove('sel'); } else { selected.add(n); p.classList.add('sel'); }
+    const k = p.dataset.k;
+    if (selected.has(k)) { selected.delete(k); p.classList.remove('sel'); } else { selected.add(k); p.classList.add('sel'); }
     selected.size ? showTool() : hideTool();
   });
 }
@@ -524,14 +780,15 @@ function showTool(){
 }
 function hideTool(){ const t = $('#mtool'); if (t) t.remove(); }
 function markAction(a){
-  const ns = [...selected].sort((x, y) => x - y);
+  const q = S.qt, ver = curVer(q), list = ver === 'NEW' ? q.verses : q.versions[ver];
+  const ks = list.map(vKey).filter(k => selected.has(k));   // 본문 순서대로
   if (a === 'take'){
-    const q = S.qt, txt = ns.map(n => { const v = q.verses.find(v => String(v.n) === n); return v ? `${n}절 ${v.text}` : ''; }).filter(Boolean).join('\n');
+    const txt = ks.map(k => { const v = list.find(v => vKey(v) === k); return v ? `${vLabel(q, v)} ${v.text}` : ''; }).filter(Boolean).join('\n');
     const w = $('#word'); w.value = (w.value.trim() ? w.value.replace(/\s+$/, '') + '\n' : '') + txt;
     onEdit(); toast('와닿는 구절 칸에 담았어요');
   } else if (a !== 'close'){
-    ns.forEach(n => { if (a === 'clear') delete S.my.marks[n]; else S.my.marks[n] = a; });
-    document.querySelectorAll('.bible .v').forEach(p => { p.classList.remove('hl', 'ul'); const m = S.my.marks[p.dataset.n]; if (m) p.classList.add(m); });
+    ks.forEach(k => { delete S.my.marks[k]; delete S.my.marks[k.split(':').pop()]; if (a !== 'clear') S.my.marks[k] = a; });
+    document.querySelectorAll('.bible .v').forEach(p => { p.classList.remove('hl', 'ul'); const k = p.dataset.k; const m = S.my.marks[k] || S.my.marks[k.split(':').pop()]; if (m) p.classList.add(m); });
     onEdit();
   }
   document.querySelectorAll('.bible .v.sel').forEach(p => p.classList.remove('sel'));
@@ -552,7 +809,7 @@ $('#collectBtn').onclick = async () => {
     if (!r.items.length) { list.innerHTML = '<div class="empty"><h2>아직 표시한 구절이 없어요</h2><p>본문에서 절을 누르고 형광펜이나 밑줄을 칠해 보세요.</p></div>'; return; }
     list.innerHTML = r.items.map(g => `<div class="hgroup" data-d="${esc(g.date)}">
       <div class="hd2"><b>${esc(cleanTitle(g.title))}${g.range ? ' <small>' + esc(g.range) + '</small>' : ''}</b><small>${esc(fmtDate(g.date))}</small></div>
-      ${g.verses.map(v => `<p class="v ${esc(v.type)}"><b>${esc(v.n)}</b><span>${esc(v.text)}</span></p>`).join('')}</div>`).join('');
+      ${g.verses.map(v => `<p class="v ${esc(v.type)}"><b>${esc((g.verses.some(x => x.c && x.c !== g.verses[0].c) && v.c ? v.c + ':' : '') + v.n)}</b><span>${esc(v.text)}</span></p>`).join('')}</div>`).join('');
     list.querySelectorAll('.hgroup').forEach(el => el.onclick = () => { full.remove(); document.querySelector('.seg button[data-t=read]').click(); load(el.dataset.d); });
   } catch(e){
     if (handleAuthError(e)) { full.remove(); return; }
@@ -566,24 +823,72 @@ $('#prev').onclick = () => S && S.prev && load(S.prev);
 $('#next').onclick = () => S && S.next && load(S.next);
 $('#goToday').onclick = () => load('');
 
+/* ═════════ 달력 ═════════ */
+let CAL = null;
+$('#dateLabel').onclick = async () => {
+  if (!S) return;
+  const ck = 'nqt.cal.' + normKey(KEY);
+  CAL = CAL || store.get(ck);
+  let [y, m] = S.date.split('-').map(Number);
+  const sc = sheet(`<div id="calBox"></div><div class="row"><button class="btn sec" data-close>닫기</button></div>`);
+  const draw = () => {
+    const data = CAL || { dates: [], written: [], today: localToday() };
+    const has = new Set(data.dates), wr = new Set(data.written);
+    const first = data.dates[0] || data.today, minYM = first.slice(0, 7), maxYM = data.today.slice(0, 7);
+    const ym = `${y}-${String(m).padStart(2, '0')}`;
+    const start = new Date(y, m - 1, 1).getDay(), days = new Date(y, m, 0).getDate();
+    let cells = '일월화수목금토'.split('').map(w => `<div class="w">${w}</div>`).join('') + '<div></div>'.repeat(start);
+    for (let d = 1; d <= days; d++) {
+      const ds = `${ym}-${String(d).padStart(2, '0')}`;
+      const cls = [ds === data.today ? 'today' : '', ds === S.date ? 'cur' : '', wr.has(ds) ? 'wr' : ''].join(' ');
+      cells += `<button class="${cls}" data-d="${ds}" ${has.has(ds) && ds <= data.today ? '' : 'disabled'}>${d}</button>`;
+    }
+    sc.querySelector('#calBox').innerHTML = `
+      <div class="cal-h"><button id="cPrev" ${ym <= minYM ? 'disabled' : ''} aria-label="이전 달">‹</button><b>${y}년 ${m}월</b><button id="cNext" ${ym >= maxYM ? 'disabled' : ''} aria-label="다음 달">›</button></div>
+      <div class="cal">${cells}</div>
+      <div class="cal-legend"><span><i></i>묵상 쓴 날</span><span><em></em>오늘</span></div>
+      ${CAL ? '' : '<p class="muted" style="text-align:center;margin-top:10px">날짜를 불러오는 중…</p>'}`;
+    sc.querySelector('#cPrev').onclick = () => { if (--m < 1) { m = 12; y--; } draw(); };
+    sc.querySelector('#cNext').onclick = () => { if (++m > 12) { m = 1; y++; } draw(); };
+    sc.querySelectorAll('.cal button[data-d]:not(:disabled)').forEach(b => b.onclick = () => { sc.remove(); load(b.dataset.d); });
+  };
+  draw();
+  try { const r = await api('calendar'); CAL = { dates: r.dates, written: r.written, today: r.today }; store.set(ck, CAL); if (document.body.contains(sc)) draw(); }
+  catch(e){ if (!CAL) toast('달력을 불러오지 못했어요'); }
+};
+
 /* 내 정보 메뉴 */
 $('#meBtn').onclick = () => {
-  const scrim = document.createElement('div');
-  scrim.className = 'scrim';
-  scrim.innerHTML = `<div class="sheet" role="dialog">
+  const sc = sheet(`
     <h3>${esc(ME && ME.name || '')}님</h3>
-    <p class="muted">다른 기기(PC, 아이패드)에서도 이어 쓰려면 그 기기에서 [초대 코드가 있어요]를 누르고 이 코드를 입력하세요.</p>
+    <div class="sec-t">카페 게시판</div>
+    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+      <span style="font-weight:700">${esc(ME.network || '선택 안 함')}${ME.board && ME.board.head ? ` <span class="head-pill">${esc(ME.board.head)}</span>` : ''}</span>
+      <button class="btn sec" id="mNet" style="height:40px">변경</button>
+    </div>
+    ${ME.auto ? `<div class="sec-t">자동 올리기 (네이버 연결)</div>
+      <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+        <span style="font-weight:700">${ME.naverLinked ? '연결됨 ✓' : '연결 안 됨'}</span>
+        <button class="btn sec" id="mNaver" style="height:40px">${ME.naverLinked ? '연결 해제' : '연결하기'}</button>
+      </div>` : ''}
+    <div class="sec-t">내 코드</div>
+    <p class="muted" style="margin:0 0 8px">다른 기기에서 이어 쓰려면 그 기기에서 [초대 코드가 있어요]에 입력하세요.</p>
     <div class="codebox">${esc(fmtKey(KEY))}</div>
     <div class="row">
       <button class="btn pri" id="mCopy">코드 복사</button>
       <button class="btn sec" id="mOut">이 기기에서 로그아웃</button>
-    </div></div>`;
-  document.body.appendChild(scrim);
-  scrim.onclick = e => { if (e.target === scrim) scrim.remove(); };
-  $('#mCopy').onclick = () => copy(fmtKey(KEY), '코드를 복사했어요');
-  $('#mOut').onclick = async () => {
+    </div>`);
+  sc.querySelector('#mNet').onclick = () => pickNetwork();
+  const nv = sc.querySelector('#mNaver');
+  if (nv) nv.onclick = async () => {
+    if (!ME.naverLinked) return linkNaver();
+    if (!confirm('네이버 연결을 해제할까요?')) return;
+    try { const r = await api('naverUnlink'); ME = r.user; sc.remove(); toast('연결을 해제했어요'); } catch(e){ toast(e.message || '실패했어요'); }
+  };
+  sc.querySelector('#mCopy').onclick = () => copy(fmtKey(KEY), '코드를 복사했어요');
+  sc.querySelector('#mOut').onclick = async () => {
     if (!confirm('이 기기에서 로그아웃할까요? 코드를 다시 입력하면 기록은 그대로 보여요.')) return;
-    await flush(); scrim.remove(); clearKey(); showWelcome();
+    await flush(); sc.remove(); clearKey(); showWelcome();
   };
 };
 
@@ -615,24 +920,40 @@ function maybeHint(){
   if (!DEMO && normKey(store.get('nqt.key')) === 'DEMOA23456') store.del('nqt.key');
   KEY = store.get('nqt.key');
   if (!KEY) return showWelcome();
+  const cached = store.get(dayKey(localToday()));
+  if (cached && cached.user && cached.user.status === '승인') { ME = cached.user; startApp(); return; }   // 바로 열기
   showLoading();
-  checkMe();
+  api('day', {date: ''}).then(r => { ME = r.user; startApp(r); }).catch(e => {
+    if (handleAuthError(e)) return;
+    showGate(`<div class="panel" style="margin-top:28px"><h3>연결하지 못했어요</h3><p>${esc(e.message || '인터넷 연결을 확인해 주세요.')}</p><button class="btn pri" id="retry">다시 시도</button></div>`);
+    $('#retry').onclick = () => location.reload();
+  });
 })();
 
 /* ═════════ 미리보기용 가짜 서버 (config.js에 주소를 넣으면 쓰이지 않아요) ═════════ */
 function demoApi(action, p){
-  const D = window.__demo || (window.__demo = { status: /pending/.test(location.search) ? '대기' : '승인', notes: {} });
-  const today = '2026-10-13';
-  const day = date => ({ user:{name:'예진', status:D.status}, date: date || today, today, prev: '2026-10-12', next: '',
+  const D = window.__demo || (window.__demo = { status: /pending/.test(location.search) ? '대기' : '승인', notes: {}, network: /nonet/.test(location.search) ? '' : '이혜은NET', auto: /auto/.test(location.search), linked: /linked/.test(location.search) });
+  const board = { network:'이혜은NET', head:'QT', titleFormat:'{월}/{일}({요일}) {제목} ({범위})', writeUrl:'about:blank', writeUrlMobile:'about:blank' };
+  const prof = () => ({ name:'예진', status:D.status, network:D.network, networks:['이혜은NET','○○NET'], board: D.network ? Object.assign({}, board, {network:D.network}) : null, auto:D.auto, naverLinked:D.linked });
+  const today = localToday();
+  const refs = [[22,40],[22,41],[23,1],[23,2],[23,3],[23,4],[23,5],[23,6]];
+  const day = date => ({ user: prof(), date: date || today, today, prev: (date || today) > '2026-10-01' ? '2026-10-14' : '', next: date && date < today ? today : '',
     my: D.notes[date || today] || { word:'', god:'', wrapup:'', tongdokDone:false, updatedAt:'', marks:{} },
-    qt: { dateLabel:'2026년 10월 13일 화요일', title:'오늘 묵상의 제목이 여기에 들어가요', range:'시 4편',
+    qt: { dateLabel:'2026년 10월 13일 화요일', title:'오늘 묵상의 제목이 여기에 들어가요', range:'민 22:40-23:6',
       prayer:'여는 기도 문장이 이 자리에 들어가요.', heading:'본문 머리말',
-      verses:[1,2,3,4,5,6,7,8].map(n => ({n, text:'수집된 성경 본문 ' + n + '절 내용이 이 자리에 표시돼요. 긴 절은 자연스럽게 줄바꿈 됩니다.'})),
+      verses: refs.map(([c,n]) => ({c, n, text:'새번역 본문 ' + c + '장 ' + n + '절 내용이 이 자리에 표시돼요. 긴 절은 자연스럽게 줄바꿈 됩니다.'})),
+      versions: { GAE: refs.map(([c,n]) => ({c, n, text:'개역개정 ' + c + '장 ' + n + '절 본문'})), EASY: refs.map(([c,n]) => ({c, n, text:'쉬운성경 ' + c + '장 ' + n + '절 본문'})), NIV: refs.map(([c,n]) => ({c, n, text:'NIV text of ' + c + ':' + n})) },
       notes:'주석 내용이 들어가요.', summary:'본문요약이 들어가요.', guide:'묵상을 돕는 글이 들어가요.',
       wrapup:'말씀을 묵상하며 깨닫고 느낀 점, 기도하거나 실천하고 싶은 것을 적어 봅시다.', tongdok:'고전 17장' } });
   return new Promise(res => setTimeout(() => {
-    if (action === 'request') { D.status = '대기'; res({ ok:true, key:'DEMOA-23456', user:{ name:p.name, status:'대기' } }); }
-    else if (action === 'me') res({ ok:true, user:{ name:'예진', status:D.status } });
+    if (action === 'request') { D.status = '대기'; D.network = p.network; res({ ok:true, key:'DEMOA-23456', user:{ name:p.name, status:'대기' } }); }
+    else if (action === 'me') res({ ok:true, user: prof() });
+    else if (action === 'setNetwork') { D.network = p.network; res({ ok:true, user: prof() }); }
+    else if (action === 'calendar') res({ ok:true, dates:['2026-10-01','2026-10-02','2026-10-05','2026-10-12','2026-10-13','2026-10-14','2026-10-15'], written:['2026-10-12','2026-10-14'], today:'2026-10-15' });
+    else if (action === 'networks') res({ ok:true, networks:['이혜은NET','○○NET'] });
+    else if (action === 'naverAuthUrl') res({ ok:true, url:'about:blank' });
+    else if (action === 'naverUnlink') { D.linked = false; res({ ok:true, user: prof() }); }
+    else if (action === 'post') { const ps = { text:'10/13 16:30', url:'about:blank' }; (D.notes[p.date] = D.notes[p.date] || {}).posted = ps; res({ ok:true, posted: ps, headNote:'말머리(QT)는 카페에서 확인해 주세요.' }); }
     else if (action === 'day' || action === 'refetch') res(Object.assign({ ok:true }, day(p.date)));
     else if (action === 'highlights') res({ ok:true, items: Object.keys(D.notes).filter(d => Object.keys(D.notes[d].marks || {}).length).map(d => {
         const q = day(d).qt; return { date:d, title:q.title, range:q.range, verses:q.verses.filter(v => D.notes[d].marks[v.n]).map(v => Object.assign({type:D.notes[d].marks[v.n]}, v)) }; }) });
