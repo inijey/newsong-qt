@@ -329,17 +329,21 @@ function showWelcome(msg){
   showGate(`<p class="sub">오늘의 시심나를 읽고, 묵상을 적어요.</p>
     <div class="panel" id="p1">
       <h3>처음 오셨나요?</h3>
-      <p>이름을 남겨주시면 관리자가 확인 후 열어드려요.</p>
+      <p>이름과 소속 네트워크를 남겨주시면 관리자가 확인 후 열어드려요.</p>
       <input id="nm" maxlength="20" placeholder="이름 (예: 홍길동)" autocomplete="name">
+      <div id="netBox">${netFieldsHtml([], '', true)}</div>
       <div class="err" id="err1">${esc(msg || '')}</div>
       <button class="btn pri" id="reqBtn">사용 신청하기</button>
     </div>
     <button class="link" id="haveCode">초대 코드가 있어요</button>`);
+  api('networks').then(r => { const box = $('#netBox'); if (box) box.innerHTML = netFieldsHtml(r.networks, '', true); }).catch(() => {});
   $('#reqBtn').onclick = async () => {
     const name = $('#nm').value.trim();
+    const net = readNetFields($('#netBox'));
     if (!name) { $('#err1').textContent = '이름을 입력해 주세요.'; return; }
+    if (!net) { $('#err1').textContent = '소속 네트워크를 골라주세요.'; return; }
     $('#reqBtn').disabled = true; $('#reqBtn').textContent = '신청하는 중…';
-    try { const r = await api('request', {name}); setKey(r.key); ME = r.user; showPending(); }
+    try { const r = await api('request', Object.assign({name}, net)); setKey(r.key); ME = r.user; showPending(); }
     catch(e){ $('#err1').textContent = e.message || '신청에 실패했어요.'; $('#reqBtn').disabled = false; $('#reqBtn').textContent = '사용 신청하기'; }
   };
   $('#haveCode').onclick = () => showCodeInput();
@@ -564,7 +568,7 @@ function render(){
     <div class="f"><label for="word">와닿는 단어나 구절, 생각과 느낌</label><textarea id="word">${esc(my.word)}</textarea></div>
     <div class="f"><label for="god">하나님에 대한 생각, 느낌, 깨달음</label><textarea id="god">${esc(my.god)}</textarea></div>
     <div class="f"><label for="wrapup">묵상 정리<small>${esc(q.wrapup || '깨닫고 느낀 점, 기도하거나 실천하고 싶은 것')}</small></label><textarea id="wrapup" class="big">${esc(my.wrapup)}</textarea></div>
-    <div class="acts">${ME && ME.auto ? '<button class="btn sec icon" id="copy" aria-label="복사하기">복사</button><button class="btn pri" id="cafe">카페에 올리기</button>' : '<button class="btn pri" id="copy">복사하기</button>'}</div>
+    <div class="acts"><button class="btn sec icon" id="copy" aria-label="복사하기">복사</button><button class="btn pri" id="cafe">카페에 올리기</button></div>
     <div class="status" id="status">${my.updatedAt ? '자동 저장됨 · ' + esc(my.updatedAt) : '입력하면 자동으로 저장돼요'}</div>
     <div class="status" id="postedLine">${postedHtml(my.posted)}</div>
   </div></section>`;
@@ -851,12 +855,12 @@ $('#dateLabel').onclick = async () => {
 $('#meBtn').onclick = () => {
   const sc = sheet(`
     <h3>${esc(ME && ME.name || '')}님</h3>
-    ${ME.auto ? `<div class="sec-t">카페 게시판</div>
+    <div class="sec-t">카페 게시판</div>
     <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
       <span style="font-weight:700">${esc(ME.network || '선택 안 함')}${ME.board && ME.board.head ? ` <span class="head-pill">${esc(ME.board.head)}</span>` : ''}</span>
       <button class="btn sec" id="mNet" style="height:40px">변경</button>
     </div>
-    <div class="sec-t">자동 올리기 (네이버 연결)</div>
+    ${ME.auto ? `<div class="sec-t">자동 올리기 (네이버 연결)</div>
       <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
         <span style="font-weight:700">${ME.naverLinked ? '연결됨 ✓' : '연결 안 됨'}</span>
         <button class="btn sec" id="mNaver" style="height:40px">${ME.naverLinked ? '연결 해제' : '연결하기'}</button>
