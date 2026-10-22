@@ -913,6 +913,20 @@ function maybeHint(){
   // 예전 미리보기 모드에서 남은 가짜 코드는 지워요
   if (!DEMO && normKey(store.get('nqt.key')) === 'DEMOA23456') store.del('nqt.key');
   KEY = store.get('nqt.key');
+  // 네이버 로그인을 마치고 돌아온 경우(…/?code=…&state=…)
+  const qs = new URLSearchParams(location.search);
+  if ((qs.get('code') && qs.get('state')) || qs.get('error')) {
+    history.replaceState(null, '', location.pathname);
+    const back = `<button class="btn pri" id="nBack">앱으로 돌아가기</button>`;
+    const bind = () => { const b = $('#nBack'); if (b) b.onclick = () => location.replace(location.pathname); };
+    if (qs.get('error')) { showGate(`<div class="panel" style="margin-top:28px"><h3>네이버 연결을 취소했어요</h3><p>${esc(qs.get('error_description') || '')}</p>${back}</div>`); bind(); return; }
+    showGate(`<div style="margin-top:40px"><div class="spin"></div><p class="sub">네이버 연결 중…</p></div>`);
+    api('naverCallback', { code: qs.get('code'), state: qs.get('state') }).then(r => {
+      if (KEY) { ME = r.user; startApp(); toast('네이버 연결 완료! 이제 바로 게시돼요'); return; }
+      showGate(`<div class="panel" style="margin-top:28px"><h3>네이버 연결 완료 ✅</h3><p>${esc(r.user.name)}님 계정에 연결했어요. 홈 화면의 NEWSONG QT 앱으로 돌아가서 [카페에 올리기]를 눌러보세요.</p>${back}</div>`); bind();
+    }).catch(e => { showGate(`<div class="panel" style="margin-top:28px"><h3>연결하지 못했어요</h3><p>${esc(e.message || '')}</p>${back}</div>`); bind(); });
+    return;
+  }
   if (!KEY) return showWelcome();
   const cached = store.get(dayKey(localToday()));
   if (cached && cached.user && cached.user.status === '승인') { ME = cached.user; startApp(); return; }   // 바로 열기
@@ -946,6 +960,7 @@ function demoApi(action, p){
     else if (action === 'calendar') res({ ok:true, dates:['2026-10-01','2026-10-02','2026-10-05','2026-10-12','2026-10-13','2026-10-14','2026-10-15'], written:['2026-10-12','2026-10-14'], today:'2026-10-15' });
     else if (action === 'networks') res({ ok:true, networks:['이혜은NET','○○NET'] });
     else if (action === 'naverAuthUrl') res({ ok:true, url:'about:blank' });
+    else if (action === 'naverCallback') { D.linked = true; res({ ok:true, user: prof() }); }
     else if (action === 'naverUnlink') { D.linked = false; res({ ok:true, user: prof() }); }
     else if (action === 'post') { const ps = { text:'10/13 16:30', url:'about:blank' }; (D.notes[p.date] = D.notes[p.date] || {}).posted = ps; res({ ok:true, posted: ps, headNote:'말머리(QT)는 카페에서 확인해 주세요.' }); }
     else if (action === 'day' || action === 'refetch') res(Object.assign({ ok:true }, day(p.date)));
