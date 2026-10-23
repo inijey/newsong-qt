@@ -146,6 +146,19 @@
   .step .pv{font-size:13.5px;color:var(--ink-2);line-height:1.55;background:#f4f4f2;border-radius:10px;padding:10px 12px;white-space:pre-line;max-height:84px;overflow:hidden}
   .head-pill{display:inline-block;background:var(--ink);color:#fff;border-radius:6px;padding:1px 8px;font-size:12.5px;font-weight:800;margin:0 2px}
   .gate select{width:100%;height:50px;border:1px solid var(--line);border-radius:12px;padding:0 12px;font:inherit;font-size:16px;background:#fafafa;margin-bottom:10px;color:var(--ink)}
+  .sheet input.tf{width:100%;height:48px;border:1px solid var(--line);border-radius:12px;padding:0 12px;font:inherit;font-size:16px;background:#fafafa;outline:none}
+  .sheet input.tf:focus{border-color:var(--ink);background:#fff}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+  .chips button{border:1px solid var(--line);border-radius:999px;padding:5px 10px;font-size:12.5px;font-weight:600;background:#fff}
+  .sheet .lbl{font-size:13px;font-weight:800;margin:14px 0 6px;color:var(--ink-2)}
+  .pics{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 8px}
+  .pics .pic{position:relative;width:72px;height:72px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+  .pics .pic img{width:100%;height:100%;object-fit:cover;display:block}
+  .pics .pic button{position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.65);color:#fff;font-size:13px;line-height:22px}
+  .picrow{display:flex;gap:8px;align-items:center;justify-content:space-between}
+  .seg2{display:flex;background:#e7e7e4;border-radius:10px;padding:3px}
+  .seg2 button{padding:7px 12px;border-radius:8px;font-size:13px;font-weight:700;color:var(--ink-3);white-space:nowrap}
+  .seg2 button.on{background:var(--ink);color:#fff}
   .sheet select{width:100%;height:48px;border:1px solid var(--line);border-radius:12px;padding:0 12px;font:inherit;font-size:16px;background:#fafafa}
   .sheet .sec-t{font-size:13px;font-weight:800;margin:18px 0 8px;color:var(--ink-2)}
   .sheet{max-height:88vh;overflow:auto}
@@ -515,10 +528,12 @@ function bibleInner(q, marks){
   const avail = VERS.filter(x => x.id === 'NEW' || (q.versions && q.versions[x.id] && q.versions[x.id].length));
   const list = ver === 'NEW' ? (q.verses || []) : q.versions[ver];
   const multi = multiChap(q);
-  let lastC = null;
+  let lastC = null, lastN = null;
   const rows = list.map(v => {
     let h = '';
     if (multi && v.c && v.c !== lastC) { h += `<p class="chap">${esc(v.c)}장</p>`; lastC = v.c; }
+    else if (lastN !== null && typeof v.n === 'number' && v.n > lastN + 1) h += `<p class="chap">⋯ ${esc(v.n)}절부터</p>`;   // 건너뛴 구간
+    lastN = typeof v.n === 'number' ? v.n : lastN; lastC = v.c || lastC;
     return h + `<p class="v ${esc(markOf(marks, v))}" data-k="${esc(vKey(v))}"><b>${esc(v.n)}</b><span>${esc(v.text)}</span></p>`;
   }).join('');
   return `${avail.length > 1 ? `<div class="vtabs">${avail.map(x => `<button data-v="${x.id}" class="${x.id === ver ? 'on' : ''}">${x.name}</button>`).join('')}</div>` : ''}
@@ -618,7 +633,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 function copyNote(){
   const q = S.qt, d = collect();
   const parts = [`[${fmtDate(S.date)}] ${cleanTitle(q.title)}${q.range ? ' (' + q.range + ')' : ''}`];
-  const marked = (q.verses || []).filter(v => markOf(d.marks, v));
+  const marked = markedNotTaken(q, d);
   if (marked.length) parts.push('■ 표시한 구절\n' + marked.map(v => (multiChap(q) && v.c ? v.c + ':' : '') + v.n + ' ' + v.text).join('\n'));
   if (d.word)   parts.push('■ 와닿는 단어나 구절, 생각과 느낌\n' + d.word);
   if (d.god)    parts.push('■ 하나님에 대한 생각, 느낌, 깨달음\n' + d.god);
@@ -634,17 +649,23 @@ function postedHtml(p){
   if (!p) return '';
   return `<span class="posted">✓ 카페에 올림 · ${esc(p.text)}${p.url ? ` · <a href="${esc(p.url)}" target="_blank" rel="noopener">글 보기</a>` : ''}</span>`;
 }
-function composeTitle(){
-  const b = ME.board, q = S.qt, [y, m, d] = S.date.split('-').map(Number);
-  return (b.titleFormat || '{월}/{일}({요일}) {제목} ({범위})')
+function fillTitle(fmt){
+  const b = ME.board || {}, q = S.qt, [y, m, d] = S.date.split('-').map(Number);
+  return (fmt || '{월}/{일}({요일}) {제목} ({범위})')
     .replace(/\{월\}/g, m).replace(/\{일\}/g, d).replace(/\{요일\}/g, '일월화수목금토'[new Date(y, m-1, d).getDay()])
     .replace(/\{제목\}/g, cleanTitle(q.title)).replace(/\{범위\}/g, q.range || '')
     .replace(/\{이름\}/g, ME.name || '').replace(/\{말머리\}/g, b.head || '')
     .replace(/\(\s*\)/g, '').replace(/\s+/g, ' ').trim();
 }
+function composeTitle(){ return fillTitle(ME.titleFormat || (ME.board && ME.board.titleFormat)); }
+/* 표시한 구절 중 '와닿는 구절' 칸에 이미 담긴 건 빼요(중복 방지) */
+function markedNotTaken(q, d){
+  const inWord = (d.word || '').replace(/\s+/g, '');
+  return (q.verses || []).filter(v => markOf(d.marks, v) && !inWord.includes(String(v.text).replace(/\s+/g, '').slice(0, 20)));
+}
 function composeBody(){
   const q = S.qt, d = collect(), parts = [];
-  const marked = (q.verses || []).filter(v => markOf(d.marks, v));
+  const marked = markedNotTaken(q, d);
   if (marked.length) parts.push('■ 표시한 구절\n' + marked.map(v => (multiChap(q) && v.c ? v.c + ':' : '') + v.n + ' ' + v.text).join('\n'));
   if (d.word)   parts.push('■ 와닿는 단어나 구절, 생각과 느낌\n' + d.word);
   if (d.god)    parts.push('■ 하나님에 대한 생각, 느낌, 깨달음\n' + d.god);
@@ -667,7 +688,7 @@ async function openCafe(){
   if (ME.auto && ME.naverLinked) return autoSheet();
   if (ME.auto && !ME.naverLinked) {
     const sc = sheet(`<h3>네이버 연결이 필요해요</h3>
-      <p class="muted">한 번 연결해 두면 다음부터는 버튼 한 번으로 카페에 바로 올라가요.</p>
+      <p class="muted">한 번 연결해 두면 다음부터는 버튼 한 번으로 카페에 바로 올라가요.<br><b>네이버 동의 화면에서 [카페 글쓰기] 항목을 꼭 체크해 주세요.</b> (선택 항목이라 체크하지 않으면 올릴 수 없어요)</p>
       <div class="row"><button class="btn pri" id="nLink">네이버 연결하기</button><button class="btn sec" id="nSemi">이번엔 직접 올리기</button></div>`);
     sc.querySelector('#nLink').onclick = () => linkNaver();
     sc.querySelector('#nSemi').onclick = () => semiSheet();
@@ -683,14 +704,14 @@ function semiSheet(){
   const sc = sheet(`<h3>${esc(b.network)} 게시판에 올리기</h3>
     <p class="muted">글쓰기 화면에서 말머리 <span class="head-pill">${esc(b.head || '없음')}</span>을(를) 꼭 골라주세요.</p>
     <div class="steps">
-      <div class="step" id="st1"><div class="t"><i>1</i>제목 복사하고 글쓰기 열기</div><div class="pv">${esc(title)}</div>
+      <div class="step" id="st1"><div class="t"><i>1</i>제목 복사하고 글쓰기 열기</div><input class="tf" id="tt" value="${esc(title)}" aria-label="이번 글 제목">
         <button class="btn pri" id="go1">제목 복사 + 카페 열기</button></div>
       <div class="step" id="st2"><div class="t"><i>2</i>앱으로 돌아와 본문 복사</div><div class="pv">${esc(body)}</div>
         <button class="btn sec" id="go2">본문 복사</button></div>
     </div>
     <div class="row"><button class="btn sec" data-close>닫기</button></div>`);
   sc.querySelector('#go1').onclick = () => {
-    copy(title, '제목을 복사했어요');
+    copy(sc.querySelector('#tt').value.trim() || title, '제목을 복사했어요');
     sc.querySelector('#st1').classList.add('done');
     const btn2 = sc.querySelector('#go2'); btn2.classList.remove('sec'); btn2.classList.add('pri');
     sc.querySelector('#go1').classList.replace('pri', 'sec');
@@ -703,26 +724,66 @@ function autoSheet(){
   const b = ME.board, posted = S.my.posted;
   const sc = sheet(`<h3>${esc(b.network)} 게시판에 올릴까요?</h3>
     ${posted ? `<p class="muted"><b>이미 ${esc(posted.text)}에 올린 묵상이에요.</b> 다시 올리면 글이 하나 더 생겨요.</p>` : ''}
-    <div class="step"><div class="pv" style="max-height:none"><b>${esc(composeTitle())}</b>\n\n${esc(composeBody()).slice(0, 220)}${composeBody().length > 220 ? '…' : ''}</div></div>
-    <p class="muted" style="margin-top:12px">말머리(${esc(b.head || '없음')})는 자동 지정이 안 될 수 있어요. 올린 뒤 카페에서 확인해 주세요.</p>
+    <div class="lbl">제목 (이번 글만 바꿀 수 있어요)</div>
+    <input class="tf" id="tt" value="${esc(composeTitle())}" aria-label="이번 글 제목">
+    <div class="lbl">사진 (최대 5장)</div>
+    <div class="pics" id="pics"></div>
+    <div class="picrow"><button class="btn sec" id="addPic" style="height:40px;padding:0 14px">＋ 사진 추가</button>
+      <div class="seg2" id="picPos"><button data-p="top">본문 위</button><button data-p="bottom">본문 아래</button></div></div>
+    <input type="file" id="picIn" accept="image/*" multiple hidden>
+    <div class="lbl">본문 미리보기</div>
+    <div class="step"><div class="pv" style="max-height:140px">${esc(composeBody()).slice(0, 260)}${composeBody().length > 260 ? '…' : ''}</div></div>
+    <p class="muted" style="margin-top:12px">${b.headAuto ? `말머리 <span class="head-pill">${esc(b.head)}</span>이(가) 자동으로 붙어요.` : `말머리(${esc(b.head || '없음')})는 카페에서 직접 골라주세요.`}</p>
     <div class="row"><button class="btn pri" id="aGo">${posted ? '한 번 더 올리기' : '카페에 올리기'}</button><button class="btn sec" id="aSemi">직접 올리기(복사 방식)</button></div>`);
   sc.querySelector('#aSemi').onclick = () => semiSheet();
+  // 사진: 고르면 긴 변 1600px JPEG로 줄여서 보내요(데이터 절약, 빠른 업로드)
+  const pics = [];
+  let pos = store.get('nqt.picPos') || 'bottom';
+  const drawPics = () => {
+    sc.querySelector('#pics').innerHTML = pics.map((d, i) => `<div class="pic"><img src="${d}" alt=""><button data-i="${i}" aria-label="사진 빼기">×</button></div>`).join('');
+    sc.querySelectorAll('.pic button').forEach(b => b.onclick = () => { pics.splice(+b.dataset.i, 1); drawPics(); });
+    sc.querySelector('#addPic').disabled = pics.length >= 5;
+    sc.querySelectorAll('#picPos button').forEach(b => b.classList.toggle('on', b.dataset.p === pos));
+  };
+  sc.querySelectorAll('#picPos button').forEach(b => b.onclick = () => { pos = b.dataset.p; store.set('nqt.picPos', pos); drawPics(); });
+  sc.querySelector('#addPic').onclick = () => sc.querySelector('#picIn').click();
+  sc.querySelector('#picIn').onchange = async e => {
+    for (const f of [...e.target.files].slice(0, 5 - pics.length)) {
+      try { pics.push(await shrinkImage(f)); } catch(err){ toast('사진을 읽지 못했어요'); }
+    }
+    e.target.value = ''; drawPics();
+  };
+  drawPics();
   sc.querySelector('#aGo').onclick = async () => {
     const go = sc.querySelector('#aGo'); go.disabled = true; go.textContent = '올리는 중…';
     try {
       await flush(); await save(false);
-      const r = await api('post', {date: S.date, force: !!posted});
+      if (pics.length) go.textContent = '사진과 함께 올리는 중…';
+      const r = await api('post', {date: S.date, force: !!posted, subject: sc.querySelector('#tt').value.trim(), images: pics.map(d => d.split(',')[1]), imgPos: pos});
       S.my.posted = r.posted; $('#postedLine').innerHTML = postedHtml(r.posted);
       sheet(`<h3>카페에 올렸어요 🙌</h3><p class="muted">${esc(r.headNote || '')}</p>
         <div class="row">${r.posted && r.posted.url ? `<a class="btn pri" style="display:grid;place-items:center;text-decoration:none" href="${esc(r.posted.url)}" target="_blank" rel="noopener">카페에서 보기</a>` : ''}<button class="btn sec" data-close>닫기</button></div>`);
     } catch(e){
       if (handleAuthError(e)) return;
-      if (e.code === 'NAVER_NOT_LINKED') { ME.naverLinked = false; return openCafe(); }
+      if (e.code === 'NAVER_NOT_LINKED' || e.code === 'NAVER_SCOPE') { ME.naverLinked = false; if (e.code === 'NAVER_SCOPE') toast('카페 글쓰기 권한을 다시 받아야 해요'); return openCafe(); }
       go.disabled = false; go.textContent = '다시 시도';
       const p = document.createElement('p'); p.className = 'muted'; p.style.color = '#b42318'; p.textContent = (e.message || '실패했어요') + ' 직접 올리기로 대신 올릴 수 있어요.';
       sc.querySelector('.row').before(p);
     }
   };
+}
+
+async function shrinkImage(file){
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    await new Promise((ok, no) => { img.onload = ok; img.onerror = no; img.src = url; });
+    const k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.85);
+  } finally { URL.revokeObjectURL(url); }
 }
 
 async function linkNaver(){
@@ -851,6 +912,34 @@ $('#dateLabel').onclick = async () => {
   catch(e){ if (!CAL) toast('달력을 불러오지 못했어요'); }
 };
 
+/* 카페 글 제목 형식 편집 */
+function titleSheet(){
+  const base = (ME.board && ME.board.titleFormat) || '{월}/{일}({요일}) {제목} ({범위})';
+  const cur = ME.myTitleFormat || base;
+  const keys = ['{월}', '{일}', '{요일}', '{제목}', '{범위}', '{이름}', '{말머리}'];
+  const sc = sheet(`<h3>카페 글 제목 형식</h3>
+    <p class="muted">아래 칸을 눌러 넣으면 날짜·제목이 자동으로 채워져요. 글자는 자유롭게 고쳐도 돼요.</p>
+    <input class="tf" id="tfIn" value="${esc(cur)}" maxlength="100">
+    <div class="chips">${keys.map(k => `<button data-k="${k}">${k}</button>`).join('')}</div>
+    <div class="lbl">미리보기</div>
+    <div class="step"><div class="pv" id="tfPv"></div></div>
+    <div class="row"><button class="btn pri" id="tfSave">저장</button><button class="btn sec" id="tfReset">기본 형식으로</button></div>`);
+  const inp = sc.querySelector('#tfIn'), pv = sc.querySelector('#tfPv');
+  const draw = () => { pv.textContent = S && S.qt ? fillTitle(inp.value) : inp.value; };
+  inp.oninput = draw; draw();
+  sc.querySelectorAll('.chips button').forEach(b => b.onclick = () => {
+    const at = inp.selectionStart ?? inp.value.length;
+    inp.value = inp.value.slice(0, at) + b.dataset.k + inp.value.slice(inp.selectionEnd ?? at);
+    inp.focus(); draw();
+  });
+  const saveFmt = async v => {
+    try { const r = await api('setTitleFormat', {format: v}); ME = r.user; sc.remove(); toast('제목 형식을 저장했어요'); }
+    catch(e){ if (!handleAuthError(e)) toast(e.message || '저장하지 못했어요'); }
+  };
+  sc.querySelector('#tfSave').onclick = () => saveFmt(inp.value.trim() === base ? '' : inp.value.trim());
+  sc.querySelector('#tfReset').onclick = () => { inp.value = base; draw(); saveFmt(''); };
+}
+
 /* 내 정보 메뉴 */
 $('#meBtn').onclick = () => {
   const sc = sheet(`
@@ -859,6 +948,11 @@ $('#meBtn').onclick = () => {
     <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
       <span style="font-weight:700">${esc(ME.network || '선택 안 함')}${ME.board && ME.board.head ? ` <span class="head-pill">${esc(ME.board.head)}</span>` : ''}</span>
       <button class="btn sec" id="mNet" style="height:40px">변경</button>
+    </div>
+    <div class="sec-t">카페 글 제목 형식</div>
+    <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+      <span style="font-size:13.5px;color:var(--ink-2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(ME.titleFormat || '{월}/{일}({요일}) {제목} ({범위})')}</span>
+      <button class="btn sec" id="mTitle" style="height:40px;flex:none">편집</button>
     </div>
     ${ME.auto ? `<div class="sec-t">자동 올리기 (네이버 연결)</div>
       <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
@@ -873,6 +967,7 @@ $('#meBtn').onclick = () => {
       <button class="btn sec" id="mOut">이 기기에서 로그아웃</button>
     </div>`);
   const mn = sc.querySelector('#mNet'); if (mn) mn.onclick = () => pickNetwork();
+  sc.querySelector('#mTitle').onclick = () => titleSheet();
   const nv = sc.querySelector('#mNaver');
   if (nv) nv.onclick = async () => {
     if (!ME.naverLinked) return linkNaver();
@@ -942,9 +1037,9 @@ function maybeHint(){
 function demoApi(action, p){
   const D = window.__demo || (window.__demo = { status: /pending/.test(location.search) ? '대기' : '승인', notes: {}, network: /nonet/.test(location.search) ? '' : '이혜은NET', auto: /auto/.test(location.search), linked: /linked/.test(location.search) });
   const board = { network:'이혜은NET', head:'QT', titleFormat:'{월}/{일}({요일}) {제목} ({범위})', writeUrl:'about:blank', writeUrlMobile:'about:blank' };
-  const prof = () => ({ name:'예진', status:D.status, network:D.network, networks:['이혜은NET','○○NET'], board: D.network ? Object.assign({}, board, {network:D.network}) : null, auto:D.auto, naverLinked:D.linked });
+  const prof = () => ({ name:'예진', status:D.status, network:D.network, networks:['이혜은NET','○○NET'], board: D.network ? Object.assign({}, board, {network:D.network}) : null, auto:D.auto, naverLinked:D.linked, titleFormat: D.tf || board.titleFormat, myTitleFormat: D.tf || '' });
   const today = localToday();
-  const refs = [[22,40],[22,41],[23,1],[23,2],[23,3],[23,4],[23,5],[23,6]];
+  const refs = [[26,1],[26,2],[26,3],[26,4],[26,52],[26,53],[26,54]];
   const day = date => ({ user: prof(), date: date || today, today, prev: (date || today) > '2026-10-01' ? '2026-10-14' : '', next: date && date < today ? today : '',
     my: D.notes[date || today] || { word:'', god:'', wrapup:'', tongdokDone:false, updatedAt:'', marks:{} },
     qt: { dateLabel:'2026년 10월 13일 화요일', title:'오늘 묵상의 제목이 여기에 들어가요', range:'민 22:40-23:6',
@@ -958,6 +1053,7 @@ function demoApi(action, p){
     else if (action === 'me') res({ ok:true, user: prof() });
     else if (action === 'setNetwork') { D.network = p.network; res({ ok:true, user: prof() }); }
     else if (action === 'calendar') res({ ok:true, dates:['2026-10-01','2026-10-02','2026-10-05','2026-10-12','2026-10-13','2026-10-14','2026-10-15'], written:['2026-10-12','2026-10-14'], today:'2026-10-15' });
+    else if (action === 'setTitleFormat') { D.tf = p.format; res({ ok:true, user: prof() }); }
     else if (action === 'networks') res({ ok:true, networks:['이혜은NET','○○NET'] });
     else if (action === 'naverAuthUrl') res({ ok:true, url:'about:blank' });
     else if (action === 'naverCallback') { D.linked = true; res({ ok:true, user: prof() }); }
